@@ -8,7 +8,7 @@ $(document).ready(function() {
     ROJO: 0xff0000,
     BLANCO: 0xffffff
   };
-  var camera, scene, renderer, bulbLight, hemiLight, stats;
+  var camera, scene, renderer, bulbLight, hemiLight;
 
   // figuras
   var matEsf, matPir, matToro, matBox, matCono;
@@ -39,9 +39,9 @@ $(document).ready(function() {
   };
 
   var params = {
-    Azul: true,
+    Azul: false,
     Amarillo: true,
-    Rojo: true,
+    Rojo: false,
     Blanca: false,
     exposure: 0.7,
     bulbPower: Object.keys(bulbLuminousPowers)[0],
@@ -68,8 +68,6 @@ $(document).ready(function() {
   addEvents();
   function init() {
     var container = document.getElementById("container");
-    stats = new Stats();
-    container.appendChild(stats.dom);
 
     // picking
     raycaster = new THREE.Raycaster();
@@ -283,8 +281,6 @@ $(document).ready(function() {
     hemiLight.intensity = hemiLuminousIrradiances[params.hemiIrradiance];
 
     renderer.render(scene, camera);
-
-    stats.update();
   }
 
   function addEvents(plano) {
