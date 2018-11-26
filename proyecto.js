@@ -13,16 +13,14 @@ $(document).ready(function() {
   // figuras
   var matEsf, matPir, matToro, matBox, matCono;
 
-  var figuras = {
-    Esfera: 1,
-    Prisma: 2,
-    Cono: 3,
-    Pirámide: 4,
-    Toroide: 5
+  var operaciones = {
+    "Trasladar": "translate",
+    "Rotar": "rotate",    
+    "Escalar": "scale"
   };
 
   var par = {
-    Figura: Object.keys(figuras)[0],
+    Transformar: Object.keys(operaciones)[0],
     R: 255,
     G: 255,
     B: 255
@@ -31,7 +29,7 @@ $(document).ready(function() {
   // ref for lumens: http://www.power-sure.com/lumens.htm
   var bulbLuminousPowers = {
     "3500 lm (300W)": 3500,
-    Off: 0
+    "Off": 0
   };
 
   // ref for solar irradiances: https://en.wikipedia.org/wiki/Lux
@@ -55,6 +53,7 @@ $(document).ready(function() {
   var intersection = new THREE.Vector3();
   var offset = new THREE.Vector3();
   var SELECTED;
+  var FIGURASELECCIONADA = null;
   var plane = new THREE.Plane();
   var INTERSECTED;
   var graficoPicking = null;
@@ -87,6 +86,11 @@ $(document).ready(function() {
     camera.position.z = 4;
     camera.position.y = 2;
     scene = new THREE.Scene();
+
+    // Ejes guía - Sistema de referencia de la escena
+    var axes = new THREE.AxesHelper( 1 );
+    axes.position.set( 0, 0.001, 0 );
+    scene.add( axes );
 
     /*
           FOCOS
@@ -155,13 +159,74 @@ $(document).ready(function() {
     graficoPicking = esfera;
 
     cameraMove = new THREE.OrbitControls(camera, renderer.domElement);
+    cameraMove.addEventListener( 'change', render );
+
+    cameraMove.addEventListener( 'start', function() {
+      cancelHideTransorm();
+    } );
+
+    cameraMove.addEventListener( 'end', function() {
+      delayHideTransform();
+    } );
+
+    transformControl = new THREE.TransformControls( camera, renderer.domElement );
+    transformControl.addEventListener( 'change', render );
+    transformControl.addEventListener( 'dragging-changed', function ( event ) {
+      cameraMove.enabled = !event.value
+    } );
+    //transformControl.setMode('rotate');
+    scene.add( transformControl );
+
+    // Hiding transform situation is a little in a mess :()
+    transformControl.addEventListener( 'change', function( e ) {
+      cancelHideTransorm();
+    } );
+
+    transformControl.addEventListener( 'mouseDown', function( e ) {
+      cancelHideTransorm();
+    } );
+
+    transformControl.addEventListener( 'mouseUp', function( e ) {
+      delayHideTransform();
+    } );
+
+    transformControl.addEventListener( 'objectChange', function( e ) {
+      cancelHideTransorm();      
+    } );
+
+    var dragcontrols = new THREE.DragControls( objects, camera, renderer.domElement ); //
+    dragcontrols.enabled = false;
+    dragcontrols.addEventListener( 'hoveron', function ( event ) {      
+      cancelHideTransorm();
+    } );
+
+    dragcontrols.addEventListener( 'hoveroff', function ( event ) {
+      delayHideTransform();
+    } );
+
+    var hiding;
+
+    function delayHideTransform() {
+      cancelHideTransorm();
+      hideTransform();
+    }
+
+    function hideTransform() {
+      hiding = setTimeout( function() {
+        transformControl.detach( transformControl.object );
+      }, 2500 )
+    }
+
+    function cancelHideTransorm() {
+      if ( hiding ) clearTimeout( hiding );
+    }
+
+
     window.addEventListener("resize", onWindowResize, false);
     addGui();
   }
 
-  function render() {
-    graficoPicking.rotation.y += figuraRotacion.velocidadFigura;
-    raycaster.setFromCamera(mouseVector, camera);
+  function changeColor(){
     var color = new THREE.Color(
       "rgb(" +
         Math.round(par.R) +
@@ -172,17 +237,14 @@ $(document).ready(function() {
         ")"
     );
 
-    if (par.Figura == Object.keys(figuras)[0]) {
-      matEsf.color.set(color);
-    } else if (par.Figura == Object.keys(figuras)[1]) {
-      matBox.color.set(color);
-    } else if (par.Figura == Object.keys(figuras)[2]) {
-      matCono.color.set(color);
-    } else if (par.Figura == Object.keys(figuras)[3]) {
-      matPir.color.set(color);
-    } else if (par.Figura == Object.keys(figuras)[4]) {
-      matToro.color.set(color);
+    if (FIGURASELECCIONADA){
+      FIGURASELECCIONADA.material.color.set(color);      
     }
+  }
+
+  function render() {
+    graficoPicking.rotation.y += figuraRotacion.velocidadFigura;
+    raycaster.setFromCamera(mouseVector, camera);
 
     renderer.toneMappingExposure = Math.pow(params.exposure, 5.0); // to allow for very bright scenes.
 
@@ -226,29 +288,25 @@ $(document).ready(function() {
   }
 
   function addEvents(plano) {
+    var isMouseDown = false;
     $(window).mousemove(function(event) {
       event.preventDefault();
       mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
       mouseVector.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
       raycaster.setFromCamera(mouseVector, camera);
-      if (SELECTED) {
-        if (raycaster.ray.intersectPlane(plane, intersection)) {
-          SELECTED.position.copy(intersection.sub(offset));
-        }
-        return;
-      }
 
       var intersects = raycaster.intersectObjects(objects);
       var isIntersect = intersects.length > 0;
       if (isIntersect) {
         graficoPicking = intersects[0].object;
 
-        if (INTERSECTED != graficoPicking) {
+        if (INTERSECTED != graficoPicking && !isMouseDown) {
           if (INTERSECTED) {
             INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
           }
           INTERSECTED = graficoPicking;
+          transformControl.attach( INTERSECTED );
           INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
         }
       } else {
@@ -261,26 +319,31 @@ $(document).ready(function() {
 
     $(window).mousedown(function(event) {
       event.preventDefault();
-
+      isMouseDown = true;
       raycaster.setFromCamera(mouseVector, camera);
       var intersects = raycaster.intersectObjects(objects);
       let isGraficoIntersectado = intersects.length > 0;
       if (isGraficoIntersectado) {
         graficoPicking = intersects[0].object;
-        cameraMove.enabled = false;
         SELECTED = graficoPicking;
+        FIGURASELECCIONADA = SELECTED
+        /*
+        cameraMove.enabled = false;        
         if (raycaster.ray.intersectPlane(plane, intersection)) {
           offset.copy(intersection).sub(SELECTED.position);
         }
+        */
       }
     });
 
     $(window).mouseup(function(event) {
       event.preventDefault();
+      isMouseDown = false;
+      /*
       if (INTERSECTED) {
         SELECTED = null;
         return;
-      }
+      }*/
       cameraMove.enabled = true;
     });
   }
@@ -289,10 +352,10 @@ $(document).ready(function() {
     var gui = new dat.GUI();
     gui.add(figuraRotacion, "velocidadFigura", 0, 0.5);
     gui.add(params, "hemiIrradiance", Object.keys(hemiLuminousIrradiances));
-    gui.add(par, "Figura", Object.keys(figuras));
-    gui.add(par, "R", 0, 255);
-    gui.add(par, "G", 0, 255);
-    gui.add(par, "B", 0, 255);
+    gui.add(par, "Transformar", Object.keys(operaciones)).onChange(function(value) {transformControl.setMode(value)});
+    gui.add(par, "R", 0, 255).step(1).onChange(changeColor);
+    gui.add(par, "G", 0, 255).step(1).onChange(changeColor);
+    gui.add(par, "B", 0, 255).step(1).onChange(changeColor);
     gui.add(params, "exposure", 0, 1);
     gui.add(params, "Amarillo", 0, 1);
     gui.add(params, "Azul", 0, 1);
@@ -364,10 +427,10 @@ $(document).ready(function() {
     });
     matToro.name = "toroide";
     object = new THREE.Mesh(
-      new THREE.TorusBufferGeometry(0.05, 0.02, 30, 65),
+      new THREE.TorusBufferGeometry(0.15, 0.05, 30, 65),
       matToro
     );
-    object.position.set(-0.4, 0.07, 0);
+    object.position.set(-0.45, 0.2, 0);
     scene.add(object);
     return [matToro, object];
   }
@@ -379,11 +442,11 @@ $(document).ready(function() {
     });
     matBox.name = "esfera";
     object = new THREE.Mesh(
-      new THREE.BoxBufferGeometry(0.1, 0.1, 0.1, 0.4, 0.4, 0.4),
+      new THREE.BoxBufferGeometry(0.36, 0.36, 0.36, 1, 1, 1),
       matBox
     );
 
-    object.position.set(-0.2, 0.07, 0);
+    object.position.set(-0.9, 0.18, 0);
     scene.add(object);
     return [matBox, object];
   }
@@ -395,10 +458,10 @@ $(document).ready(function() {
     });
     matEsf.name = "esfera";
     object = new THREE.Mesh(
-      new THREE.SphereBufferGeometry(0.075, 32, 32),
+      new THREE.SphereBufferGeometry(0.2, 32, 32),
       matEsf
     );
-    object.position.set(0, 0.07, 0);
+    object.position.set(0, 0.2, 0);
     return [matEsf, object];
   }
 
@@ -409,10 +472,10 @@ $(document).ready(function() {
     });
     matCono.name = "cono";
     object = new THREE.Mesh(
-      new THREE.CylinderBufferGeometry(0, 0.05, 0.1, 30),
+      new THREE.CylinderBufferGeometry(0, 0.2, 0.4, 60),
       matCono
     );
-    object.position.set(0.4, 0.07, 0);
+    object.position.set(0.4, 0.2, 0);
     scene.add(object);
     return [matCono, object];
   }
@@ -424,10 +487,10 @@ $(document).ready(function() {
     });
     matPir.name = "piramide";
     object = new THREE.Mesh(
-      new THREE.TetrahedronBufferGeometry(0.075, 0),
+      new THREE.TetrahedronBufferGeometry(0.3, 0),
       matPir
     );
-    object.position.set(0.2, 0.07, 0);
+    object.position.set(0.8, 0.2, 0);
     return [matPir, object];
   }
 
