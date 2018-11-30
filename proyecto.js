@@ -197,8 +197,7 @@ $(document).ready(function() {
       delayHideTransform();
     } );
 
-    transformControl.addEventListener( 'objectChange', function( e ) {
-      console.log("prevent rotation");
+    transformControl.addEventListener( 'objectChange', function( e ) {      
       preventRotation = true;
       cancelHideTransorm();      
     } );
