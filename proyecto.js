@@ -13,9 +13,9 @@ $(document).ready(function() {
   // figuras
   var matEsf, matPir, matToro, matBox, matCono;
 
-  var operaciones = {
+  var operaciones = {           
     "Trasladar": "translate",
-    "Rotar": "rotate",    
+    "Rotar": "rotate", 
     "Escalar": "scale"
   };
 
@@ -59,6 +59,7 @@ $(document).ready(function() {
   var graficoPicking = null;
   var objects = [];
   var cameraMove;
+  var pivote;
   var figuraRotacion = new function() {
     this.velocidadFigura = 0.02;
   }();
@@ -68,7 +69,8 @@ $(document).ready(function() {
   addEvents();
   function init() {
     var container = document.getElementById("container");
-
+    pivote = new THREE.Object3D();
+    
     // picking
     raycaster = new THREE.Raycaster();
     mouseVector = new THREE.Vector2();
@@ -137,22 +139,26 @@ $(document).ready(function() {
     /*
           OBJETOS
         */
-    [matEsf, esfera] = esfera();
-    scene.add(esfera);
+    esfera = esfera();
+    pivote.add(esfera);        
 
-    [matPir, piramide] = piramide();
-    scene.add(object);
+    piramide = piramide();
+    pivote.add(object);
 
-    [matBox, cubo] = cubo();
-    scene.add(cubo);
+    cubo = cubo();
+    pivote.add(cubo);
 
-    [matCono, cono] = cono();
-    scene.add(cono);
+    cono = cono();
+    pivote.add(cono);
 
-    [matToro, toroide] = toroide();
-    scene.add(toroide);
+    toroide = toroide();
+    pivote.add(toroide);
 
-    objects = [esfera, piramide, cubo, cono, toroide];
+    tetera = tetera();
+    scene.add(tetera);
+    scene.add(pivote);    
+
+    objects = [esfera, piramide, cubo, cono, toroide, tetera];
 
     graficoPicking = esfera;
 
@@ -323,23 +329,14 @@ $(document).ready(function() {
         graficoPicking = intersects[0].object;
         SELECTED = graficoPicking;
         FIGURASELECCIONADA = SELECTED
-        /*
-        cameraMove.enabled = false;        
-        if (raycaster.ray.intersectPlane(plane, intersection)) {
-          offset.copy(intersection).sub(SELECTED.position);
-        }
-        */
+ 
       }
     });
 
     $(window).mouseup(function(event) {
       event.preventDefault();
       isMouseDown = false;
-      /*
-      if (INTERSECTED) {
-        SELECTED = null;
-        return;
-      }*/
+
       cameraMove.enabled = true;
     });
   }
@@ -380,7 +377,7 @@ $(document).ready(function() {
       for (let j = 0; j < 8; j++) {
         let floorGeometry = new THREE.PlaneBufferGeometry(0.5, 0.5);
         let color = generarColor(j, flag);
-        let planeMaterial = new THREE.MeshStandardMaterial({ color });
+        let planeMaterial = new THREE.MeshStandardMaterial({ color, side: THREE.DoubleSide });
         let floorMesh = new THREE.Mesh(floorGeometry, planeMaterial);
         floorMesh.receiveShadow = true;
         floorMesh.rotation.x = -Math.PI / 2.0;
@@ -426,9 +423,9 @@ $(document).ready(function() {
       new THREE.TorusBufferGeometry(0.15, 0.05, 30, 65),
       matToro
     );
-    object.position.set(-0.45, 0.2, 0);
+    object.position.set(-1.2, 0.2, -1.2);
     scene.add(object);
-    return [matToro, object];
+    return object;
   }
 
   function cubo() {
@@ -436,15 +433,15 @@ $(document).ready(function() {
       side: THREE.DoubleSide,
       color: "#ffffff"
     });
-    matBox.name = "esfera";
+    matBox.name = "cubo";
     object = new THREE.Mesh(
       new THREE.BoxBufferGeometry(0.36, 0.36, 0.36, 1, 1, 1),
       matBox
     );
 
-    object.position.set(-0.9, 0.18, 0);
+    object.position.set(-1.4, 0.18, 0.5);
     scene.add(object);
-    return [matBox, object];
+    return object;
   }
 
   function esfera() {
@@ -457,8 +454,8 @@ $(document).ready(function() {
       new THREE.SphereBufferGeometry(0.2, 32, 32),
       matEsf
     );
-    object.position.set(0, 0.2, 0);
-    return [matEsf, object];
+    object.position.set(0, 0.2, 1.4);
+    return object;
   }
 
   function cono() {
@@ -471,9 +468,9 @@ $(document).ready(function() {
       new THREE.CylinderBufferGeometry(0, 0.2, 0.4, 60),
       matCono
     );
-    object.position.set(0.4, 0.2, 0);
+    object.position.set(0.5, 0.2, -1.4);
     scene.add(object);
-    return [matCono, object];
+    return object;
   }
 
   function piramide() {
@@ -486,8 +483,26 @@ $(document).ready(function() {
       new THREE.TetrahedronBufferGeometry(0.3, 0),
       matPir
     );
-    object.position.set(0.8, 0.2, 0);
-    return [matPir, object];
+    object.position.set(1.4, 0.2, 0.2);
+    return object;
+  }
+
+  function tetera() {
+    let matTetera = new THREE.MeshStandardMaterial({
+      side: THREE.DoubleSide, 
+      color: 0xFFFFFF      
+    });
+    matTetera.name = "tetera";
+    var geometriaTetera = new THREE.TeapotBufferGeometry( 0.3,
+      5,true,true,true,true,true 
+    );
+    
+    object = new THREE.Mesh(
+      geometriaTetera,
+      matTetera
+    );
+    object.position.set(0,0.3,0);
+    return object;
   }
 
   function onWindowResize() {
@@ -495,10 +510,16 @@ $(document).ready(function() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   }
-
+  
+  
   function animate() {
     cameraMove.update();
     render();
     requestAnimationFrame(animate);
+
+    //pivote.position = tetera.position;
+    pivote.rotation.y += 0.02;
+
+    
   }
 });
