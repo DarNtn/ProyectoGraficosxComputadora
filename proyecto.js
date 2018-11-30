@@ -8,19 +8,9 @@ $(document).ready(function() {
     ROJO: 0xff0000,
     BLANCO: 0xffffff
   };
-  var camera, scene, renderer, bulbLight, hemiLight;
+  var camera, scene, renderer, hemiLight;
 
-  // figuras
-  var matEsf, matPir, matToro, matBox, matCono;
-
-  var operaciones = {           
-    "Trasladar": "translate",
-    "Rotar": "rotate", 
-    "Escalar": "scale"
-  };
-
-  var par = {
-    Transformar: Object.keys(operaciones)[0],
+  var par = {    
     R: 255,
     G: 255,
     B: 255
@@ -39,9 +29,9 @@ $(document).ready(function() {
   };
 
   var params = {
-    Azul: false,
+    Azul: true,
     Amarillo: true,
-    Rojo: false,
+    Rojo: true,
     Blanca: false,
     exposure: 0.7,
     bulbPower: Object.keys(bulbLuminousPowers)[0],
@@ -50,19 +40,19 @@ $(document).ready(function() {
 
   var raycaster;
   var mouseVector;
-  var intersection = new THREE.Vector3();
-  var offset = new THREE.Vector3();
   var SELECTED;
-  var FIGURASELECCIONADA = null;
-  var plane = new THREE.Plane();
+  var FIGURASELECCIONADA = null;  
   var INTERSECTED;
   var graficoPicking = null;
   var objects = [];
   var cameraMove;
   var pivote;
   var figuraRotacion = new function() {
-    this.velocidadFigura = 0.02;
+    this.velRotacion = 0.02;
+    this.velTraslacion = 0.02;
   }();
+  var velTraslacionGlobal = 0;  
+  var preventRotation = false;
 
   init();
   animate();
@@ -140,22 +130,34 @@ $(document).ready(function() {
           OBJETOS
         */
     esfera = esfera();
-    pivote.add(esfera);        
+    obj = new THREE.Object3D();
+    obj.add(esfera);
+    pivote.add(obj); 
 
     piramide = piramide();
-    pivote.add(object);
+    obj = new THREE.Object3D();
+    obj.add(piramide);
+    pivote.add(obj);
 
     cubo = cubo();
-    pivote.add(cubo);
+    obj = new THREE.Object3D();
+    obj.add(cubo);
+    pivote.add(obj);
 
     cono = cono();
-    pivote.add(cono);
+    obj = new THREE.Object3D();
+    obj.add(cono);    
+    pivote.add(obj);
 
     toroide = toroide();
-    pivote.add(toroide);
+    obj = new THREE.Object3D();
+    obj.add(toroide);
+    pivote.add(obj);
 
     tetera = tetera();
-    scene.add(tetera);
+    obj = new THREE.Object3D();
+    obj.add(tetera)
+    scene.add(obj);
     scene.add(pivote);    
 
     objects = [esfera, piramide, cubo, cono, toroide, tetera];
@@ -182,19 +184,22 @@ $(document).ready(function() {
     scene.add( transformControl );
 
     // Hiding transform situation is a little in a mess :()
-    transformControl.addEventListener( 'change', function( e ) {
+    transformControl.addEventListener( 'change', function( e ) {      
       cancelHideTransorm();
     } );
 
-    transformControl.addEventListener( 'mouseDown', function( e ) {
+    transformControl.addEventListener( 'mouseDown', function( e ) {            
       cancelHideTransorm();
     } );
 
     transformControl.addEventListener( 'mouseUp', function( e ) {
+      preventRotation = false;
       delayHideTransform();
     } );
 
     transformControl.addEventListener( 'objectChange', function( e ) {
+      console.log("prevent rotation");
+      preventRotation = true;
       cancelHideTransorm();      
     } );
 
@@ -207,6 +212,8 @@ $(document).ready(function() {
     dragcontrols.addEventListener( 'hoveroff', function ( event ) {
       delayHideTransform();
     } );
+
+    addKeyEvents();
 
     var hiding;
 
@@ -247,7 +254,7 @@ $(document).ready(function() {
   }
 
   function render() {
-    graficoPicking.rotation.y += figuraRotacion.velocidadFigura;
+    graficoPicking.rotation.y += figuraRotacion.velRotacion;
     raycaster.setFromCamera(mouseVector, camera);
 
     renderer.toneMappingExposure = Math.pow(params.exposure, 5.0); // to allow for very bright scenes.
@@ -283,6 +290,26 @@ $(document).ready(function() {
       params.bulbPower = Object.keys(bulbLuminousPowers)[0];
       focoBlanco.power = bulbLuminousPowers[params.bulbPower];
     }
+    
+    // Rotación en torno al eje y del objeto complejo    
+    pivote.position.set(tetera.position.x, tetera.position.y, tetera.position.z);
+    if (FIGURASELECCIONADA && FIGURASELECCIONADA.id !== tetera.id){
+      if (!preventRotation){
+        pivote.rotation.y += velTraslacionGlobal;
+        FIGURASELECCIONADA.parent.rotation.y += figuraRotacion.velTraslacion-velTraslacionGlobal;
+      } else{
+        pivote.rotation.y = 0;
+        FIGURASELECCIONADA.parent.rotation.y = 0;
+      }
+    } else{      
+      if (!preventRotation){        
+        pivote.rotation.y += figuraRotacion.velTraslacion;
+        velTraslacionGlobal = figuraRotacion.velTraslacion;
+      } else {
+        pivote.rotation.y = 0;        
+      }
+    }
+    
 
     hemiLight.intensity = hemiLuminousIrradiances[params.hemiIrradiance];
 
@@ -329,23 +356,29 @@ $(document).ready(function() {
         graficoPicking = intersects[0].object;
         SELECTED = graficoPicking;
         FIGURASELECCIONADA = SELECTED
- 
       }
     });
 
     $(window).mouseup(function(event) {
       event.preventDefault();
       isMouseDown = false;
-
+      /*
+      raycaster.setFromCamera(mouseVector, camera);
+      var intersects = raycaster.intersectObjects(objects);
+      let isGraficoIntersectado = intersects.length > 0;
+      if (!isGraficoIntersectado) {        
+        //FIGURASELECCIONADA = null;
+      }
+      */
       cameraMove.enabled = true;
     });
   }
 
   function addGui() {
     var gui = new dat.GUI();
-    gui.add(figuraRotacion, "velocidadFigura", 0, 0.5);
-    gui.add(params, "hemiIrradiance", Object.keys(hemiLuminousIrradiances));
-    gui.add(par, "Transformar", Object.keys(operaciones)).onChange(function(value) {transformControl.setMode(value)});
+    gui.add(figuraRotacion, "velRotacion", 0, 0.35);
+    gui.add(figuraRotacion, "velTraslacion", 0, 0.15);
+    gui.add(params, "hemiIrradiance", Object.keys(hemiLuminousIrradiances));    
     gui.add(par, "R", 0, 255).step(1).onChange(changeColor);
     gui.add(par, "G", 0, 255).step(1).onChange(changeColor);
     gui.add(par, "B", 0, 255).step(1).onChange(changeColor);
@@ -408,6 +441,46 @@ $(document).ready(function() {
       return WHITE_COLOR;
     }
     return BLACK_COLOR;
+  }
+
+  // Cambio de operacion mediante teclas
+  // 
+  function addKeyEvents() {
+
+    window.addEventListener( 'keydown', function ( event ) {
+
+      switch ( event.keyCode ) {
+
+        case 84: // T
+          transformControl.setMode( "translate" );
+          break;
+
+        case 82: // R
+          transformControl.setMode( "rotate" );
+          break;
+
+        case 69: // E
+          transformControl.setMode( "scale" );
+          break;
+
+        case 88: // X
+          transformControl.showX = !transformControl.showX;
+          break;
+
+        case 89: // Y
+          transformControl.showY = !transformControl.showY;
+          break;
+
+        case 90: // Z
+          transformControl.showZ = !transformControl.showZ;
+          break;
+
+        case 27: // ESC
+          FIGURASELECCIONADA = null;
+
+      }
+
+    });
   }
 
   /*
@@ -515,11 +588,6 @@ $(document).ready(function() {
   function animate() {
     cameraMove.update();
     render();
-    requestAnimationFrame(animate);
-
-    //pivote.position = tetera.position;
-    pivote.rotation.y += 0.02;
-
-    
+    requestAnimationFrame(animate);        
   }
 });
