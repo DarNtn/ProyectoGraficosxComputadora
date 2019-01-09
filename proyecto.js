@@ -58,6 +58,7 @@ $(document).ready(function() {
   init();
   animate();
   addEvents();
+
   function init() {
     var container = document.getElementById("container");
     pivote = new THREE.Object3D();
@@ -301,23 +302,23 @@ $(document).ready(function() {
     }
     
     // Rotación en torno al eje y del objeto complejo    
-    pivote.position.set(tetera.position.x, tetera.position.y, tetera.position.z);
-    if (FIGURASELECCIONADA && FIGURASELECCIONADA.id !== tetera.id){
-      if (!preventRotation){
-        pivote.rotation.y += velTraslacionGlobal;
-        FIGURASELECCIONADA.parent.rotation.y += figuraRotacion.velTraslacion-velTraslacionGlobal;
-      } else{
-        pivote.rotation.y = 0;
-        FIGURASELECCIONADA.parent.rotation.y = 0;
-      }
-    } else{      
-      if (!preventRotation){        
-        pivote.rotation.y += figuraRotacion.velTraslacion;
-        velTraslacionGlobal = figuraRotacion.velTraslacion;
-      } else {
-        pivote.rotation.y = 0;        
-      }
-    }
+    // pivote.position.set(tetera.position.x, tetera.position.y, tetera.position.z);
+    // if (FIGURASELECCIONADA && FIGURASELECCIONADA.id !== tetera.id){
+    //   if (!preventRotation){
+    //     pivote.rotation.y += velTraslacionGlobal;
+    //     FIGURASELECCIONADA.parent.rotation.y += figuraRotacion.velTraslacion-velTraslacionGlobal;
+    //   } else{
+    //     pivote.rotation.y = 0;
+    //     FIGURASELECCIONADA.parent.rotation.y = 0;
+    //   }
+    // } else{      
+    //   if (!preventRotation){        
+    //     pivote.rotation.y += figuraRotacion.velTraslacion;
+    //     velTraslacionGlobal = figuraRotacion.velTraslacion;
+    //   } else {
+    //     pivote.rotation.y = 0;        
+    //   }
+    // }
     
     // Seguimiento de trayectoria - Camera spline
     var time = Date.now();
@@ -337,6 +338,86 @@ $(document).ready(function() {
 
   function addEvents(plano) {
     var isMouseDown = false;
+
+    $(document).bind("contextmenu", function(event) {
+      if (event.target.nodeName === "DIV") {
+        return;
+      }  else if (event.target.nodeName === "CANVAS") {
+        var intersects = raycaster.intersectObjects(objects);
+        if (intersects.length > 0) {
+            //console.log(intersects[0].object);
+            FIGURASELECCIONADA = intersects[0].object;
+            console.log(FIGURASELECCIONADA)
+        } else {
+            return;
+        }
+        event.preventDefault();
+        $(".custom-menu").finish().toggle(100).
+        css({
+            top: event.pageY + "px",
+            left: event.pageX + "px"
+        });
+      }
+
+    })
+
+    $(document).bind("mousedown", function(e) {
+        if (!$(e.target).parents(".custom-menu").length > 0) {
+            $(".custom-menu").hide(100);
+        }
+    });
+
+
+    $(".custom-menu li").click(function() {
+      var accion = $(this).attr("data-action")
+      console.log(accion)
+      switch (accion) {
+        case "textura-madera":
+          setTexture ('images/hardwood2_diffuse.jpg', FIGURASELECCIONADA)
+          break;
+        case "textura-ladrillo":
+          setTexture ('images/bricks.gif', FIGURASELECCIONADA)
+          break;
+        case "textura-normal":
+          setTexture ('images/bricks.gif', FIGURASELECCIONADA, true)
+          break;
+        case "textura-bloque":
+          setTexture ('images/brick_bump.jpg', FIGURASELECCIONADA)
+          break;
+        case "textura-marmol":
+          setTexture ("images/disturb.jpg", FIGURASELECCIONADA)
+          break;
+        case "textura-metalico":
+          setTexture ('images/metal.jpg', FIGURASELECCIONADA)
+          break;
+
+      }
+      $(".custom-menu").hide(100);
+    })
+
+    function setTexture (url, figure, standard) {
+      var loader = new THREE.TextureLoader();
+      loader.load(url,
+          function(texture) {
+              // do something with the texture
+              console.log("setTexture")
+              var material_texture = null
+              if (standard) {
+                material_texture = new THREE.MeshStandardMaterial({
+                  side: THREE.DoubleSide,
+                  color: "#ffffff"
+                });
+              } else {
+                material_texture = new THREE.MeshBasicMaterial({
+                  map: texture
+                });
+              }
+              figure.material = material_texture;
+
+          }
+      );
+    }
+
     $(window).mousemove(function(event) {
       event.preventDefault();
       mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -524,7 +605,7 @@ $(document).ready(function() {
   function cubo() {
     let matBox = new THREE.MeshStandardMaterial({
       side: THREE.DoubleSide,
-      color: "#ffffff"
+      color: "#ffffff",
     });
     matBox.name = "cubo";
     object = new THREE.Mesh(
