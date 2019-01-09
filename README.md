@@ -2,14 +2,29 @@
 
 # TODO
 
-1. Anadir, eliminar objectos
-2. Inicar objeto estatico sin propiedades
-3. Menu de opciones
-	1. Rotacion sobre le eje
-	2. girar sobre su propio eje
-	3. texturas (madera, ladrillo)
-	4. colores
-	5. picking
-	6. eliminar
-4. Camara con trayectoria
-5. Objeto complejo (casa)
+[ ] Anadir objetos
+
+[] Inicar objeto estatico sin propiedades
+
+-  Menu de opciones
+	[] Rotacion sobre le eje
+
+	[] girar sobre un punto
+
+	[x] texturas (madera, ladrillo) - joel
+
+	[] colores
+
+	[] picking 
+
+	[] eliminar - joel
+
+[]  Camara con trayectoria
+
+[]  Objeto complejo (casa)
+
+
+
+```sh
+yarn  http-server .
+```
