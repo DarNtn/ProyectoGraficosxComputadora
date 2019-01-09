@@ -1,0 +1,12 @@
+{
+  "name": "proyecto",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/joelerll/graficos_por_computadora.git",
+  "author": "Joel Rodriguez <joelerll@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.4",
+    "http-server": "^0.11.1"
+  }
+}
