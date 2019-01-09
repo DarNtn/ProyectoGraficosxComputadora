@@ -8,7 +8,7 @@ $(document).ready(function() {
     ROJO: 0xff0000,
     BLANCO: 0xffffff
   };
-  var camera, scene, renderer, hemiLight;
+  var camera, scene, renderer, hemiLight, splineCamera, parent, tubeGeometry;
 
   var par = {    
     R: 255,
@@ -35,7 +35,8 @@ $(document).ready(function() {
     Blanca: false,
     exposure: 0.7,
     bulbPower: Object.keys(bulbLuminousPowers)[0],
-    hemiIrradiance: Object.keys(hemiLuminousIrradiances)[1]
+    hemiIrradiance: Object.keys(hemiLuminousIrradiances)[1],
+    animacionCamara: false
   };
 
   var raycaster;
@@ -76,6 +77,15 @@ $(document).ready(function() {
     camera.position.z = 4;
     camera.position.y = 2;
     scene = new THREE.Scene();
+    
+    parent = new THREE.Object3D();
+    scene.add( parent );
+
+    // camera spline - path movement
+    splineCamera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 1000 );    
+    parent.add( splineCamera );
+
+    tubeGeometry = trayectoriaCam();
 
     // Ejes guía - Sistema de referencia de la escena
     var axes = new THREE.AxesHelper( 1 );
@@ -309,10 +319,20 @@ $(document).ready(function() {
       }
     }
     
+    // Seguimiento de trayectoria - Camera spline
+    var time = Date.now();
+    var looptime = 20 * 1000;
+    var t = ( time % looptime ) / looptime;
+
+    var pos = tubeGeometry.parameters.path.getPointAt( t );
+    splineCamera.position.copy( pos );            
+    splineCamera.matrix.lookAt( splineCamera.position, new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0) );
+    splineCamera.rotation.setFromRotationMatrix( splineCamera.matrix, splineCamera.rotation.order );
+
 
     hemiLight.intensity = hemiLuminousIrradiances[params.hemiIrradiance];
 
-    renderer.render(scene, camera);
+    renderer.render( scene, params.animacionCamara === true ? splineCamera : camera );    
   }
 
   function addEvents(plano) {
@@ -386,6 +406,7 @@ $(document).ready(function() {
     gui.add(params, "Azul", 0, 1);
     gui.add(params, "Rojo", 0, 1);
     gui.add(params, "Blanca", 0, 1);
+    gui.add(params, 'animacionCamara');
     gui.open();
   }
 
@@ -575,6 +596,33 @@ $(document).ready(function() {
     );
     object.position.set(0,0.3,0);
     return object;
+  }
+
+  function trayectoriaCam(){
+    var spline = new THREE.CatmullRomCurve3( [
+			new THREE.Vector3( -3, 2, 2 ),
+			new THREE.Vector3( -1, 0, 1 ),
+			new THREE.Vector3( 1, 2, 2 ),
+      new THREE.Vector3( 3, 1, -2 ),      
+      new THREE.Vector3( -2, 2, -1 )
+		] );
+		spline.curveType = 'catmullrom';
+    spline.closed = true;
+        
+    tubeGeometry = new THREE.TubeBufferGeometry( spline, 150, 0.01, 10, true );
+    let mat = new THREE.MeshStandardMaterial({
+      side: THREE.DoubleSide,
+      color: "#ffffff"
+    });    
+    object = new THREE.Mesh(
+      tubeGeometry,
+      mat
+    );
+    parent.add( object );
+    // Ocutar trayectoria
+    object.visible = false;    		
+    
+    return tubeGeometry;
   }
 
   function onWindowResize() {
