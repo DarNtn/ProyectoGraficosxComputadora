@@ -9,6 +9,7 @@ $(document).ready(function() {
     BLANCO: 0xffffff
   };
   var camera, scene, renderer, hemiLight, splineCamera, parent, tubeGeometry;
+  var torotate=[];
 
   var par = {    
     R: 255,
@@ -263,8 +264,7 @@ $(document).ready(function() {
     }
   }
 
-  function render() {
-    graficoPicking.rotation.y += figuraRotacion.velRotacion;
+  function render() {    
     raycaster.setFromCamera(mouseVector, camera);
 
     renderer.toneMappingExposure = Math.pow(params.exposure, 5.0); // to allow for very bright scenes.
@@ -319,6 +319,11 @@ $(document).ready(function() {
     //     pivote.rotation.y = 0;        
     //   }
     // }
+
+    // Rotacion en propio eje
+    torotate.forEach(function(fig){
+      fig.rotation.y += figuraRotacion.velRotacion;
+    });
     
     // Seguimiento de trayectoria - Camera spline
     var time = Date.now();
@@ -372,6 +377,19 @@ $(document).ready(function() {
       var accion = $(this).attr("data-action")
       console.log(accion)
       switch (accion) {
+        case "rotacion":
+          if (torotate.includes(FIGURASELECCIONADA)){
+            torotate.splice(torotate.indexOf(FIGURASELECCIONADA), 1);
+          } else{
+            torotate.push(FIGURASELECCIONADA);
+          }          
+          break;
+        case "eliminar":
+          if (torotate.includes(FIGURASELECCIONADA)){
+            torotate.splice(torotate.indexOf(FIGURASELECCIONADA), 1);
+          }
+          // ELIMINARLO DE LA ESCENA AQUI
+          break;
         case "textura-madera":
           setTexture ('images/hardwood2_diffuse.jpg', FIGURASELECCIONADA)
           break;
@@ -598,6 +616,7 @@ $(document).ready(function() {
       matToro
     );
     object.position.set(-1.2, 0.2, -1.2);
+    object.name="toroide";
     scene.add(object);
     return object;
   }
@@ -612,8 +631,8 @@ $(document).ready(function() {
       new THREE.BoxBufferGeometry(0.36, 0.36, 0.36, 1, 1, 1),
       matBox
     );
-
     object.position.set(-1.4, 0.18, 0.5);
+    object.name="cubo";
     scene.add(object);
     return object;
   }
@@ -629,6 +648,7 @@ $(document).ready(function() {
       matEsf
     );
     object.position.set(0, 0.2, 1.4);
+    object.name="esfera";
     return object;
   }
 
@@ -643,6 +663,7 @@ $(document).ready(function() {
       matCono
     );
     object.position.set(0.5, 0.2, -1.4);
+    object.name="cono";
     scene.add(object);
     return object;
   }
@@ -658,6 +679,7 @@ $(document).ready(function() {
       matPir
     );
     object.position.set(1.4, 0.2, 0.2);
+    object.name="piramide";
     return object;
   }
 
@@ -676,6 +698,7 @@ $(document).ready(function() {
       matTetera
     );
     object.position.set(0,0.3,0);
+    object.name="tetera";
     return object;
   }
 
