@@ -370,6 +370,8 @@ $(document).ready(function() {
     $(document).bind("mousedown", function(e) {
         if (!$(e.target).parents(".custom-menu").length > 0) {
             $(".custom-menu").hide(100);
+        }
+        if (!$(e.target).parents(".custom-submenu").length > 0) {
             $(".custom-submenu").hide(100);
         }
     });
