@@ -4,13 +4,17 @@
 
 [ ] Anadir objetos
 
-[] Inicar objeto estatico sin propiedades
+[] Iniciar objeto estatico sin propiedades
 
 -  Menu de opciones
 
-	[] Rotacion sobre le eje
+	[x] Rotacion sobre el eje - Allan
 
-	[] girar sobre un punto
+	[x] girar sobre un punto - Allan
+
+	[x] Todos roten - Allan
+
+	[x] Todos trasladen - Allan
 
 	[x] texturas (madera, ladrillo) - joel
 
