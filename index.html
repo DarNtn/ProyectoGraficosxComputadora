@@ -59,6 +59,33 @@
             position: relative;
             background-color: #DEF;
         }
+
+        .custom-submenu {
+            display: none;
+            z-index: 2000;
+            position: absolute;
+            overflow: hidden;
+            border: 1px solid #CCC;
+            white-space: nowrap;
+            font-family: sans-serif;
+            background: #FFF;
+            color: #333;
+            border-radius: 5px;
+            padding: 0;
+        }
+        /* Each of the items in the list */
+
+        .custom-submenu li {
+            padding: 8px 12px;
+            cursor: pointer;
+            list-style-type: none;
+            transition: all .3s ease;
+        }
+
+        .custom-submenu li:hover {
+            position: relative;
+            background-color: #DEF;
+        }
 /*
         #menu {
   background: #343434;
@@ -197,23 +224,25 @@
   <body>
     <div id="container"></div>
     <div id="info">Tablero de ajedrez con control de luz artificial
-      <br><h3>Presione "T" para <i>Trasladar</i> objetos, "R" para <i>Rotar</i> y "E" para <i>Escalar</i></h3>
+      <br><h3>Presione "Click der." para <i>Desplegar menú de opciones</i></h3>
       <h3>Presione "Click izq." para <i>Seleccionar</i> objeto y "ESC" para <i>Deseleccionar</i> objeto</h3>
     </div>
     <ul class='custom-menu'>
-        <li data-action="rotacion">Rotación sobre el eje</li>
-        <li data-action="color">Pick Color</li>
-        <li data-action="picking">Picking</li>
+        <li data-action="rotacion">Rotación automática sobre el eje</li>
+        <li data-action="traslacion">Traslación automática alrededor de la tetera</li>
+        <li data-action="rotar">Rotación manual</li>
+        <li data-action="trasladar">Traslación manual</li>
+        <li data-action="escalar">Modificar tamaño</li>
         <li data-action="eliminar">Eliminar</li>
-        <div style="padding-left: 10px;">
-          <div>Texturas</div>
-          <li data-action="textura-madera" style="padding-left: 10px;">- Madera</li>
-          <li data-action="textura-ladrillo" style="padding-left: 10px;">- Ladrillo</li>
-          <li data-action="textura-bloque" style="padding-left: 10px;">- Bloque</li>
-          <li data-action="textura-marmol" style="padding-left: 10px;">- Marmol</li>
-          <li data-action="textura-metalico" style="padding-left: 10px;">- Metálico</li>
-          <li data-action="textura-normal" style="padding-left: 10px;">- Normal</li>
-        <div>
+        <li data-action="textura">Texturas</li>
+    </ul>
+    <ul class='custom-submenu'>
+        <li data-action="textura-madera">Madera</li>
+        <li data-action="textura-ladrillo">Ladrillo</li>
+        <li data-action="textura-bloque">Bloque</li>
+        <li data-action="textura-marmol">Marmol</li>
+        <li data-action="textura-metalico">Metálico</li>
+        <li data-action="textura-normal">Normal</li>
     </ul>
 
     <script src="js/three.js"></script>

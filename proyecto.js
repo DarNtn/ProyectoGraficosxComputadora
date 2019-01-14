@@ -2,14 +2,17 @@ $(document).ready(function() {
   if (WEBGL.isWebGLAvailable() === false) {
     document.body.appendChild(WEBGL.getWebGLErrorMessage());
   }
+
   const color = {
     AMARILLO: 0xffff00,
     AZUL: 0x0000ff,
     ROJO: 0xff0000,
     BLANCO: 0xffffff
   };
+
   var camera, scene, renderer, hemiLight, splineCamera, parent, tubeGeometry;
   var torotate=[];
+  var totraslate=[];
 
   var par = {    
     R: 255,
@@ -30,30 +33,32 @@ $(document).ready(function() {
   };
 
   var params = {
-    Azul: true,
-    Amarillo: true,
-    Rojo: true,
-    Blanca: false,
-    exposure: 0.7,
+    LuzAzul: false,
+    LuzAmarilla: false,
+    LuzRoja: false,
+    LuzBlanca: true,
+    Exposicion: 0.6,
     bulbPower: Object.keys(bulbLuminousPowers)[0],
     hemiIrradiance: Object.keys(hemiLuminousIrradiances)[1],
-    animacionCamara: false
+    AnimacionCamara: false,
+    VelocidadRotacion: 0.02,
+    VelocidadTraslacion: 0.02,
+    Activado: false
   };
 
+  var objects = [];
   var raycaster;
   var mouseVector;
   var SELECTED;
   var FIGURASELECCIONADA = null;  
   var INTERSECTED;
   var graficoPicking = null;
-  var objects = [];
   var cameraMove;
   var pivote;
   var figuraRotacion = new function() {
-    this.velRotacion = 0.02;
-    this.velTraslacion = 0.02;
+    this.VelocidadRotacion = 0.02;
+    this.VelocidadTraslacion = 0.02;
   }();
-  var velTraslacionGlobal = 0;  
   var preventRotation = false;
 
   init();
@@ -94,9 +99,7 @@ $(document).ready(function() {
     axes.position.set( 0, 0.001, 0 );
     scene.add( axes );
 
-    /*
-          FOCOS
-        */
+    //FOCOS
     var bulbGeometry = new THREE.SphereBufferGeometry(0.02, 16, 8);
 
     // Foco Amarillo
@@ -119,15 +122,10 @@ $(document).ready(function() {
     hemiLight = new THREE.HemisphereLight(0xddeeff, 0x0f0e0d, 0.02);
     scene.add(hemiLight);
 
-    /*
-          TABLERO
-        */
-
+    //TABLERO
     generarTablero();
 
-    /*
-          Configuraciones
-        */
+    //Configuraciones
     renderer = new THREE.WebGLRenderer();
     renderer.physicallyCorrectLights = true;
     renderer.gammaInput = true;
@@ -138,9 +136,7 @@ $(document).ready(function() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     container.appendChild(renderer.domElement);
 
-    /*
-          OBJETOS
-        */
+    //OBJETOS
     esfera = esfera();
     obj = new THREE.Object3D();
     obj.add(esfera);
@@ -192,7 +188,6 @@ $(document).ready(function() {
     transformControl.addEventListener( 'dragging-changed', function ( event ) {
       cameraMove.enabled = !event.value
     } );
-    //transformControl.setMode('rotate');
     scene.add( transformControl );
 
     // Hiding transform situation is a little in a mess :()
@@ -267,9 +262,9 @@ $(document).ready(function() {
   function render() {    
     raycaster.setFromCamera(mouseVector, camera);
 
-    renderer.toneMappingExposure = Math.pow(params.exposure, 5.0); // to allow for very bright scenes.
+    renderer.toneMappingExposure = Math.pow(params.Exposicion, 5.0); // to allow for very bright scenes.
 
-    if (params.Amarillo == false) {
+    if (params.LuzAmarilla == false) {
       params.bulbPower = Object.keys(bulbLuminousPowers)[1];
       focoAmarillo.power = bulbLuminousPowers[params.bulbPower];
     } else {
@@ -277,7 +272,7 @@ $(document).ready(function() {
       focoAmarillo.power = bulbLuminousPowers[params.bulbPower];
     }
 
-    if (params.Azul == false) {
+    if (params.LuzAzul == false) {
       params.bulbPower = Object.keys(bulbLuminousPowers)[1];
       focoAzul.power = bulbLuminousPowers[params.bulbPower];
     } else {
@@ -285,7 +280,7 @@ $(document).ready(function() {
       focoAzul.power = bulbLuminousPowers[params.bulbPower];
     }
 
-    if (params.Rojo == false) {
+    if (params.LuzRoja == false) {
       params.bulbPower = Object.keys(bulbLuminousPowers)[1];
       focoRojo.power = bulbLuminousPowers[params.bulbPower];
     } else {
@@ -293,7 +288,7 @@ $(document).ready(function() {
       focoRojo.power = bulbLuminousPowers[params.bulbPower];
     }
 
-    if (params.Blanca == false) {
+    if (params.LuzBlanca == false) {
       params.bulbPower = Object.keys(bulbLuminousPowers)[1];
       focoBlanco.power = bulbLuminousPowers[params.bulbPower];
     } else {
@@ -301,28 +296,34 @@ $(document).ready(function() {
       focoBlanco.power = bulbLuminousPowers[params.bulbPower];
     }
     
-    // Rotación en torno al eje y del objeto complejo    
-    // pivote.position.set(tetera.position.x, tetera.position.y, tetera.position.z);
-    // if (FIGURASELECCIONADA && FIGURASELECCIONADA.id !== tetera.id){
-    //   if (!preventRotation){
-    //     pivote.rotation.y += velTraslacionGlobal;
-    //     FIGURASELECCIONADA.parent.rotation.y += figuraRotacion.velTraslacion-velTraslacionGlobal;
-    //   } else{
-    //     pivote.rotation.y = 0;
-    //     FIGURASELECCIONADA.parent.rotation.y = 0;
-    //   }
-    // } else{      
-    //   if (!preventRotation){        
-    //     pivote.rotation.y += figuraRotacion.velTraslacion;
-    //     velTraslacionGlobal = figuraRotacion.velTraslacion;
-    //   } else {
-    //     pivote.rotation.y = 0;        
-    //   }
-    // }
+    // Traslacion de todos los objetos con respecto del objeto complejo 
+    pivote.position.set(tetera.position.x, tetera.position.y, tetera.position.z);
+ 
+    if (params.Activado){
+      if (!preventRotation){        
+        pivote.rotation.y += params.VelocidadTraslacion;
+        VelocidadTraslacionGlobal = params.VelocidadTraslacion;
+      } else {
+        pivote.rotation.y = 0;        
+      }
+    }
 
-    // Rotacion en propio eje
+    // Rotación de todos los objetos
+    objects.forEach(function(fig){
+      if (params.Activado){
+        fig.rotation.y += params.VelocidadRotacion;
+      }
+    });
+     
+
+    // Rotacion en propio eje objeto seleccionado
     torotate.forEach(function(fig){
-      fig.rotation.y += figuraRotacion.velRotacion;
+      fig.rotation.y += figuraRotacion.VelocidadRotacion;
+    });
+
+    // Traslacion en eje tetera objeto seleccionado
+    totraslate.forEach(function(fig){
+      fig.parent.rotation.y += figuraRotacion.VelocidadTraslacion;
     });
     
     // Seguimiento de trayectoria - Camera spline
@@ -338,7 +339,7 @@ $(document).ready(function() {
 
     hemiLight.intensity = hemiLuminousIrradiances[params.hemiIrradiance];
 
-    renderer.render( scene, params.animacionCamara === true ? splineCamera : camera );    
+    renderer.render( scene, params.AnimacionCamara === true ? splineCamera : camera );    
   }
 
   function addEvents(plano) {
@@ -369,19 +370,33 @@ $(document).ready(function() {
     $(document).bind("mousedown", function(e) {
         if (!$(e.target).parents(".custom-menu").length > 0) {
             $(".custom-menu").hide(100);
+            $(".custom-submenu").hide(100);
         }
     });
 
-
-    $(".custom-menu li").click(function() {
+    $(".custom-menu li").click(function(event) {
       var accion = $(this).attr("data-action")
       console.log(accion)
       switch (accion) {
+        case "textura":
+          $(".custom-submenu").finish().toggle(100).
+          css({
+              top: (parseInt(event.pageY) - 204) + "px",
+              left: event.pageX + "px"
+          });
+          break;
         case "rotacion":
           if (torotate.includes(FIGURASELECCIONADA)){
             torotate.splice(torotate.indexOf(FIGURASELECCIONADA), 1);
           } else{
             torotate.push(FIGURASELECCIONADA);
+          }          
+          break;
+        case "traslacion":
+          if (totraslate.includes(FIGURASELECCIONADA)){
+            totraslate.splice(totraslate.indexOf(FIGURASELECCIONADA), 1);
+          } else{
+            totraslate.push(FIGURASELECCIONADA);
           }          
           break;
         case "eliminar":
@@ -408,9 +423,44 @@ $(document).ready(function() {
         case "textura-metalico":
           setTexture ('images/metal.jpg', FIGURASELECCIONADA)
           break;
+        case "trasladar":
+          transformControl.setMode( "translate" );
+          break;
+        case "rotar":
+          transformControl.setMode( "rotate" );
+          break;
+        case "escalar":
+          transformControl.setMode( "scale" );
+          break;
 
       }
       $(".custom-menu").hide(100);
+    })
+
+    $(".custom-submenu li").click(function() {
+      var accion = $(this).attr("data-action")
+      console.log(accion)
+      switch (accion) {
+        case "textura-madera":
+          setTexture ('images/hardwood2_diffuse.jpg', FIGURASELECCIONADA)
+          break;
+        case "textura-ladrillo":
+          setTexture ('images/bricks.gif', FIGURASELECCIONADA)
+          break;
+        case "textura-normal":
+          setTexture ('images/bricks.gif', FIGURASELECCIONADA, true)
+          break;
+        case "textura-bloque":
+          setTexture ('images/brick_bump.jpg', FIGURASELECCIONADA)
+          break;
+        case "textura-marmol":
+          setTexture ("images/disturb.jpg", FIGURASELECCIONADA)
+          break;
+        case "textura-metalico":
+          setTexture ('images/metal.jpg', FIGURASELECCIONADA)
+          break;
+      }
+      $(".custom-submenu").hide(100);
     })
 
     function setTexture (url, figure, standard) {
@@ -493,19 +543,29 @@ $(document).ready(function() {
   }
 
   function addGui() {
-    var gui = new dat.GUI();
-    gui.add(figuraRotacion, "velRotacion", 0, 0.35);
-    gui.add(figuraRotacion, "velTraslacion", 0, 0.15);
-    gui.add(params, "hemiIrradiance", Object.keys(hemiLuminousIrradiances));    
-    gui.add(par, "R", 0, 255).step(1).onChange(changeColor);
-    gui.add(par, "G", 0, 255).step(1).onChange(changeColor);
-    gui.add(par, "B", 0, 255).step(1).onChange(changeColor);
-    gui.add(params, "exposure", 0, 1);
-    gui.add(params, "Amarillo", 0, 1);
-    gui.add(params, "Azul", 0, 1);
-    gui.add(params, "Rojo", 0, 1);
-    gui.add(params, "Blanca", 0, 1);
-    gui.add(params, 'animacionCamara');
+    var gui = new dat.GUI({name: 'Menú de opciones', width: 272});
+    gui.add(params, 'AnimacionCamara');
+    var folder2 = gui.addFolder('Animaciones objeto seleccionado');  
+    folder2.add(figuraRotacion, "VelocidadRotacion", -0.1, 0.1);
+    folder2.add(figuraRotacion, "VelocidadTraslacion", -0.1, 0.1);
+    var folder3 = gui.addFolder('Animaciones todos los objetos');  
+    folder3.add(params, "Activado", 0, 1);
+    folder3.add(params, "VelocidadRotacion", -0.1, 0.1);
+    folder3.add(params, "VelocidadTraslacion", -0.1, 0.1);
+    var folder = gui.addFolder('Color del objeto seleccionado');  
+    folder.add(par, "R", 0, 255).step(1).onChange(changeColor);
+    folder.add(par, "G", 0, 255).step(1).onChange(changeColor);
+    folder.add(par, "B", 0, 255).step(1).onChange(changeColor);
+    var folder1 = gui.addFolder('Luces');
+    folder1.add(params, "LuzBlanca", 0, 1);
+    folder1.add(params, "LuzAmarilla", 0, 1);
+    folder1.add(params, "LuzAzul", 0, 1);
+    folder1.add(params, "LuzRoja", 0, 1);
+    folder1.add(params, "Exposicion", 0, 1);
+    folder.open();
+    folder1.open();
+    folder2.open();
+    folder3.open();
     gui.open();
   }
 
@@ -602,9 +662,7 @@ $(document).ready(function() {
     });
   }
 
-  /*
-    Objetos
-   */
+  //OBJETOS
   function toroide() {
     let matToro = new THREE.MeshStandardMaterial({
       side: THREE.DoubleSide,
