@@ -7,6 +7,7 @@
 [] Inicar objeto estatico sin propiedades
 
 -  Menu de opciones
+
 	[] Rotacion sobre le eje
 
 	[] girar sobre un punto
