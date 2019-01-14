@@ -138,37 +138,37 @@ $(document).ready(function() {
 
     //OBJETOS
     esfera = esfera();
-    obj = new THREE.Object3D();
-    obj.add(esfera);
-    pivote.add(obj); 
+    // obj = new THREE.Object3D();
+    // obj.add(esfera);
+    pivote.add(esfera); 
 
     piramide = piramide();
-    obj = new THREE.Object3D();
-    obj.add(piramide);
-    pivote.add(obj);
+    // obj = new THREE.Object3D();
+    // obj.add(piramide);
+    pivote.add(piramide);
 
     cubo = cubo();
-    obj = new THREE.Object3D();
-    obj.add(cubo);
-    pivote.add(obj);
+    // obj = new THREE.Object3D();
+    // obj.add(cubo);
+    pivote.add(cubo);
 
     cono = cono();
-    obj = new THREE.Object3D();
-    obj.add(cono);    
-    pivote.add(obj);
+    // obj = new THREE.Object3D();
+    // obj.add(cono);    
+    pivote.add(cono);
 
     toroide = toroide();
-    obj = new THREE.Object3D();
-    obj.add(toroide);
-    pivote.add(obj);
+    // obj = new THREE.Object3D();
+    // obj.add(toroide);
+    pivote.add(toroide);
 
     tetera = tetera();
-    obj = new THREE.Object3D();
-    obj.add(tetera)
-    scene.add(obj);
+    // obj = new THREE.Object3D();
+    // obj.add(tetera)
+    scene.add(tetera);
     scene.add(pivote);    
 
-    objects = [esfera, piramide, cubo, cono, toroide, tetera];
+    objects = [cubo, esfera, piramide, cono, toroide, tetera];
 
     graficoPicking = esfera;
 
@@ -309,22 +309,22 @@ $(document).ready(function() {
     }
 
     // Rotación de todos los objetos
-    objects.forEach(function(fig){
-      if (params.Activado){
-        fig.rotation.y += params.VelocidadRotacion;
-      }
-    });
+    // objects.forEach(function(fig){
+    //   if (params.Activado){
+    //     fig.rotation.y += params.VelocidadRotacion;
+    //   }
+    // });
      
 
-    // Rotacion en propio eje objeto seleccionado
-    torotate.forEach(function(fig){
-      fig.rotation.y += figuraRotacion.VelocidadRotacion;
-    });
+    // // Rotacion en propio eje objeto seleccionado
+    // torotate.forEach(function(fig){
+    //   fig.rotation.y += figuraRotacion.VelocidadRotacion;
+    // });
 
-    // Traslacion en eje tetera objeto seleccionado
-    totraslate.forEach(function(fig){
-      fig.parent.rotation.y += figuraRotacion.VelocidadTraslacion;
-    });
+    // // Traslacion en eje tetera objeto seleccionado
+    // totraslate.forEach(function(fig){
+    //   fig.parent.rotation.y += figuraRotacion.VelocidadTraslacion;
+    // });
     
     // Seguimiento de trayectoria - Camera spline
     var time = Date.now();
@@ -378,7 +378,7 @@ $(document).ready(function() {
 
     $(".custom-menu li").click(function(event) {
       var accion = $(this).attr("data-action")
-      console.log(accion)
+      transformControl.attach( FIGURASELECCIONADA );
       switch (accion) {
         case "textura":
           $(".custom-submenu").finish().toggle(100).
@@ -402,9 +402,13 @@ $(document).ready(function() {
           }          
           break;
         case "eliminar":
+          console.log("==== eliminar")
           if (torotate.includes(FIGURASELECCIONADA)){
             torotate.splice(torotate.indexOf(FIGURASELECCIONADA), 1);
           }
+          transformControl.detach(FIGURASELECCIONADA);
+          pivote.remove(FIGURASELECCIONADA);
+          // animate();
           // ELIMINARLO DE LA ESCENA AQUI
           break;
         case "textura-madera":
@@ -441,7 +445,6 @@ $(document).ready(function() {
 
     $(".custom-submenu li").click(function() {
       var accion = $(this).attr("data-action")
-      console.log(accion)
       switch (accion) {
         case "textura-madera":
           setTexture ('images/hardwood2_diffuse.jpg', FIGURASELECCIONADA)
@@ -505,7 +508,7 @@ $(document).ready(function() {
             INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
           }
           INTERSECTED = graficoPicking;
-          transformControl.attach( INTERSECTED );
+          // transformControl.attach( INTERSECTED );
           INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
         }
       } else {
@@ -531,6 +534,7 @@ $(document).ready(function() {
 
     $(window).mouseup(function(event) {
       event.preventDefault();
+      // transformControl.detach(FIGURASELECCIONADA);
       isMouseDown = false;
       /*
       raycaster.setFromCamera(mouseVector, camera);
