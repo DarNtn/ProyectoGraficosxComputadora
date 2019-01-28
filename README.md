@@ -6,30 +6,35 @@
 
 [] Iniciar objeto estatico sin propiedades
 
--  Menu de opciones
+- Menu de opciones
 
-	[x] Rotacion sobre el eje - Allan
+      	[x] Rotacion sobre el eje - Allan
 
-	[x] girar sobre un punto - Allan
+      	[x] girar sobre un punto - Allan
 
-	[x] Todos roten - Allan
+      	[x] Todos roten - Allan
 
-	[x] Todos trasladen - Allan
+      	[x] Todos trasladen - Allan
 
-	[x] texturas (madera, ladrillo) - joel
+      	[x] texturas (madera, ladrillo) - joel
 
-	[] colores
+      	[] colores
 
-	[] picking 
+      	[] picking
 
-	[] eliminar - joel
+      	[x] eliminar - joel
 
-[]  Camara con trayectoria
+[] Camara con trayectoria
 
-[]  Objeto complejo (casa)
-
-
+[] Objeto complejo (casa)
 
 ```sh
 yarn  http-server .
+```
+
+# Proyecto 2
+
+```sh
+povray -geometry 800x600 domino.pov
+povray proyecto.ini
 ```
