@@ -1,92 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Proyecto Gráficos WebGL</title>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
-    />
-    <style>
-      body {
-        background-color: #000;
-        margin: 0px;
-        overflow: hidden;
-      }
 
-      #info {
-        position: absolute;
-        top: 0px;
-        width: 100%;
-        color: #ffffff;
-        padding: 5px;
-        font-family: Monospace;
-        font-size: 13px;
-        text-align: center;
-      }
+<head>
+  <title>Proyecto Gráficos WebGL</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  <style>
+    body {
+      background-color: #000;
+      margin: 0px;
+      overflow: hidden;
+    }
 
-      a {
-        color: #ff0080;
-        text-decoration: none;
-      }
+    #info {
+      position: absolute;
+      top: 0px;
+      width: 100%;
+      color: #ffffff;
+      padding: 5px;
+      font-family: Monospace;
+      font-size: 13px;
+      text-align: center;
+    }
 
-      a:hover {
-        color: #0080ff;
-      }
-      .custom-menu {
-            display: none;
-            z-index: 1000;
-            position: absolute;
-            overflow: hidden;
-            border: 1px solid #CCC;
-            white-space: nowrap;
-            font-family: sans-serif;
-            background: #FFF;
-            color: #333;
-            border-radius: 5px;
-            padding: 0;
-        }
-        /* Each of the items in the list */
+    a {
+      color: #ff0080;
+      text-decoration: none;
+    }
 
-        .custom-menu li {
-            padding: 8px 12px;
-            cursor: pointer;
-            list-style-type: none;
-            transition: all .3s ease;
-        }
+    a:hover {
+      color: #0080ff;
+    }
 
-        .custom-menu li:hover {
-            position: relative;
-            background-color: #DEF;
-        }
+    .custom-menu {
+      display: none;
+      z-index: 1000;
+      position: absolute;
+      overflow: hidden;
+      border: 1px solid #CCC;
+      white-space: nowrap;
+      font-family: sans-serif;
+      background: #FFF;
+      color: #333;
+      border-radius: 5px;
+      padding: 0;
+    }
 
-        .custom-submenu {
-            display: none;
-            z-index: 2000;
-            position: absolute;
-            overflow: hidden;
-            border: 1px solid #CCC;
-            white-space: nowrap;
-            font-family: sans-serif;
-            background: #FFF;
-            color: #333;
-            border-radius: 5px;
-            padding: 0;
-        }
-        /* Each of the items in the list */
+    /* Each of the items in the list */
 
-        .custom-submenu li {
-            padding: 8px 12px;
-            cursor: pointer;
-            list-style-type: none;
-            transition: all .3s ease;
-        }
+    .custom-menu li {
+      padding: 8px 12px;
+      cursor: pointer;
+      list-style-type: none;
+      transition: all .3s ease;
+    }
 
-        .custom-submenu li:hover {
-            position: relative;
-            background-color: #DEF;
-        }
-/*
+    .custom-menu li:hover {
+      position: relative;
+      background-color: #DEF;
+    }
+
+    .custom-submenu {
+      display: none;
+      z-index: 2000;
+      position: absolute;
+      overflow: hidden;
+      border: 1px solid #CCC;
+      white-space: nowrap;
+      font-family: sans-serif;
+      background: #FFF;
+      color: #333;
+      border-radius: 5px;
+      padding: 0;
+    }
+
+    /* Each of the items in the list */
+
+    .custom-submenu li {
+      padding: 8px 12px;
+      cursor: pointer;
+      list-style-type: none;
+      transition: all .3s ease;
+    }
+
+    .custom-submenu li:hover {
+      position: relative;
+      background-color: #DEF;
+    }
+
+    /*
         #menu {
   background: #343434;
   color: #eee;
@@ -219,40 +221,44 @@
 #menu ul.menus .has-submenu:hover .submenu {
   display: block;
 }*/
-    </style>
-  </head>
-  <body>
-    <div id="container"></div>
-    <div id="info">Tablero de ajedrez con control de luz artificial
-      <br><h3>Presione "Click der." para <i>Desplegar menú de opciones</i></h3>
-      <h3>Presione "Click izq." para <i>Seleccionar</i> objeto y "ESC" para <i>Deseleccionar</i> objeto</h3>
-    </div>
-    <ul class='custom-menu'>
-        <li data-action="rotacion">Rotación automática sobre el eje</li>
-        <li data-action="traslacion">Traslación automática alrededor de la tetera</li>
-        <li data-action="rotar">Rotación manual</li>
-        <li data-action="trasladar">Traslación manual</li>
-        <li data-action="escalar">Modificar tamaño</li>
-        <li data-action="eliminar">Eliminar</li>
-        <li data-action="textura">Texturas</li>
-    </ul>
-    <ul class='custom-submenu'>
-        <li data-action="textura-madera">Madera</li>
-        <li data-action="textura-ladrillo">Ladrillo</li>
-        <li data-action="textura-bloque">Bloque</li>
-        <li data-action="textura-marmol">Marmol</li>
-        <li data-action="textura-metalico">Metálico</li>
-        <li data-action="textura-normal">Normal</li>
-    </ul>
+  </style>
+</head>
 
-    <script src="js/three.js"></script>
-    <script src="js/jquery.js"></script>
-    <script src="js/libs/dat.gui.min.js"></script>
-    <script src="js/controls/OrbitControls.js"></script>
-    <script src="js/controls/TransformControls.js"></script>
-    <script src="js/controls/DragControls.js"></script>    
-    <script src="js/WebGL.js"></script>
-    <script src="js/objetoComplejo/TeapotBufferGeometry.js"></script>
-    <script src="proyecto.js"></script>    
-  </body>
+<body>
+  <div id="container"></div>
+  <div id="info">Tablero de ajedrez con control de luz artificial
+    <br>
+    <h3>Presione "Click der." para <i>Desplegar menú de opciones</i></h3>
+    <h3>Presione "Click izq." para <i>Seleccionar</i> objeto y "ESC" para <i>Deseleccionar</i> objeto</h3>
+  </div>
+  <ul class='custom-menu'>
+    <!-- <li data-action="rotacion">Rotación automática sobre el eje</li> -->
+    <!-- <li data-action="traslacion">Traslación automática alrededor de la tetera</li> -->
+    <li data-action="rotar">Rotación manual</li>
+    <li data-action="trasladar">Traslación manual</li>
+    <li data-action="escalar">Modificar tamaño</li>
+    <li data-action="eliminar">Eliminar</li>
+    <li data-action="textura">Texturas</li>
+    <li data-action="desceleccionar">Desceleccionar</li>
+  </ul>
+  <ul class='custom-submenu'>
+    <li data-action="textura-madera">Madera</li>
+    <li data-action="textura-ladrillo">Ladrillo</li>
+    <li data-action="textura-bloque">Bloque</li>
+    <li data-action="textura-marmol">Marmol</li>
+    <li data-action="textura-metalico">Metálico</li>
+    <li data-action="textura-normal">Normal</li>
+  </ul>
+
+  <script src="js/three.js"></script>
+  <script src="js/jquery.js"></script>
+  <script src="js/libs/dat.gui.min.js"></script>
+  <script src="js/controls/OrbitControls.js"></script>
+  <script src="js/controls/TransformControls.js"></script>
+  <script src="js/controls/DragControls.js"></script>
+  <script src="js/WebGL.js"></script>
+  <script src="js/objetoComplejo/TeapotBufferGeometry.js"></script>
+  <script src="proyecto.js"></script>
+</body>
+
 </html>
