@@ -161,6 +161,11 @@ $(document).ready(function() {
     obj.add(cono);    
     pivote.add(obj);
 
+    cono = cono();
+    obj = new THREE.Object3D();
+    obj.add(cono);
+    pivote.add(obj);
+
     toroide = toroide();
     obj = new THREE.Object3D();
     obj.add(toroide);
@@ -170,7 +175,7 @@ $(document).ready(function() {
     obj = new THREE.Object3D();
     obj.add(tetera)
     scene.add(obj);
-    scene.add(pivote);   
+    scene.add(pivote);
 
     objects = [esfera, piramide, cubo, cono, toroide, tetera];
 
@@ -423,8 +428,8 @@ $(document).ready(function() {
           break;
         case "eliminar":
           console.log("==== eliminar");
-          if (torotate.includes(FIGURASELECCIONADA)) {
-            torotate.splice(torotate.indexOf(FIGURASELECCIONADA), 1);
+          if (torotate.includes(figuraTransformable)) {
+            torotate.splice(torotate.indexOf(figuraTransformable), 1);
           }
           if (totraslate.includes(FIGURASELECCIONADA)) {
             totraslate.splice(totraslate.indexOf(FIGURASELECCIONADA), 1);
@@ -688,6 +693,53 @@ $(document).ready(function() {
         obj = new THREE.Object3D();
         obj.add(object);
         pivote.add(obj);
+      },
+      Casa: function(){
+        var casa = new THREE.Object3D();
+        let matCasa = new THREE.MeshStandardMaterial({
+          side: THREE.DoubleSide,
+          color: "#ffffff"
+        });
+        
+        techo = new THREE.Mesh(
+          new THREE.CylinderBufferGeometry(0, 0.27, 0.1, 4),
+          matCasa
+        );
+        techo.position.set(0, 0.41, 0);
+        techo.rotation.y += 4;
+        techo.name = "techo";
+
+        cuerpo = new THREE.Mesh(
+          new THREE.BoxBufferGeometry(0.36, 0.36, 0.36, 1, 1, 1),
+          matCasa
+        );
+        cuerpo.position.set(0, 0.18, 0);
+        cuerpo.name = "cuerpo";
+
+        garage = new THREE.Mesh(
+          new THREE.BoxBufferGeometry(0.20, 0.17, 0.18, 1, 1, 1),
+          matCasa
+        );
+        garage.position.set(0.26, 0.085, 0.09);
+        garage.name = "garage";
+
+        cuerpo2 = new THREE.Mesh(
+          new THREE.BoxBufferGeometry(0.20, 0.36, 0.18, 1, 1, 1),
+          matCasa
+        );
+        cuerpo2.position.set(0.26, 0.18, -0.09);
+        cuerpo2.name = "cuerpo2";
+
+        casa.name = "casa";
+        casa.add(cuerpo);
+        casa.add(cuerpo2);
+        casa.add(garage);
+        casa.add(techo);
+        casa.position.set(0.4,0.4,0.4);    
+        objects.push(cuerpo);
+        obj = new THREE.Object3D();
+        obj.add(cuerpo);
+        pivote.add(obj);
       }
     };
     figuras.add(figurasCrear, "Pirámide");
@@ -696,6 +748,7 @@ $(document).ready(function() {
     figuras.add(figurasCrear, "Esfera");
     figuras.add(figurasCrear, "Cono");
     figuras.add(figurasCrear, "Tetera");
+    figuras.add(figurasCrear, "Casa");
     // figuras.add(obj, "Tetera");
     figuras.open();
 
@@ -923,6 +976,52 @@ $(document).ready(function() {
     object.position.set(0, 0.3, 0);
     object.name = "tetera";
     return object;
+  }
+
+  function casa(){
+    var casa = new THREE.Object3D();
+    let matCasa = new THREE.MeshStandardMaterial({
+      side: THREE.DoubleSide,
+      color: "#ffffff"
+    });
+    
+    techo = new THREE.Mesh(
+      new THREE.CylinderBufferGeometry(0, 0.27, 0.1, 4),
+      matCasa
+    );
+    techo.position.set(0, 0.41, 0);
+    techo.rotation.y += 4;
+    techo.name = "techo";
+
+    cuerpo = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(0.36, 0.36, 0.36, 1, 1, 1),
+      matCasa
+    );
+    cuerpo.position.set(0, 0.18, 0);
+    cuerpo.name = "cuerpo";
+
+    garage = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(0.20, 0.17, 0.18, 1, 1, 1),
+      matCasa
+    );
+    garage.position.set(0.26, 0.085, 0.09);
+    garage.name = "garage";
+
+    cuerpo2 = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(0.20, 0.36, 0.18, 1, 1, 1),
+      matCasa
+    );
+    cuerpo2.position.set(0.26, 0.18, -0.09);
+    cuerpo2.name = "cuerpo2";
+
+    casa.name = "casa";
+    casa.add(cuerpo);
+    casa.add(cuerpo2);
+    casa.add(garage);
+    casa.add(techo);
+    casa.position.set(0.4,0.4,0.4);    
+    //scene.add(casa);
+    return casa;
   }
 
   function trayectoriaCam() {
