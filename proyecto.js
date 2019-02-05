@@ -143,35 +143,35 @@ $(document).ready(function() {
 
     //OBJETOS
     esfera = esfera();
-    // obj = new THREE.Object3D();
-    // obj.add(esfera);
+    obj = new THREE.Object3D();
+    obj.add(esfera);
     pivote.add(esfera);
 
     piramide = piramide();
-    // obj = new THREE.Object3D();
-    // obj.add(piramide);
+    obj = new THREE.Object3D();
+    obj.add(piramide);
     pivote.add(piramide);
 
     cubo = cubo();
-    // obj = new THREE.Object3D();
-    // obj.add(cubo);
+    obj = new THREE.Object3D();
+    obj.add(cubo);
     pivote.add(cubo);
 
     cono = cono();
-    // obj = new THREE.Object3D();
-    // obj.add(cono);
+    obj = new THREE.Object3D();
+    obj.add(cono);
     pivote.add(cono);
 
     toroide = toroide();
-    // obj = new THREE.Object3D();
-    // obj.add(toroide);
+    obj = new THREE.Object3D();
+    obj.add(toroide);
     pivote.add(toroide);
 
     tetera = tetera();
-    // obj = new THREE.Object3D();
-    // obj.add(tetera)
+    obj = new THREE.Object3D();
+    obj.add(tetera)
     scene.add(tetera);
-    scene.add(pivote);
+    scene.add(pivote);    
 
     objects = [cubo, esfera, piramide, cono, toroide, tetera];
 
@@ -321,21 +321,29 @@ $(document).ready(function() {
     }
 
     // Rotación de todos los objetos
-    // objects.forEach(function(fig){
-    //   if (params.Activado){
-    //     fig.rotation.y += params.VelocidadRotacion;
-    //   }
-    // });
+    objects.forEach(function(fig){      
+      if (params.Activado){
+        fig.rotation.y += params.VelocidadRotacion;
+      }
+    });
 
     // // Rotacion en propio eje objeto seleccionado
-    // torotate.forEach(function(fig){
-    //   fig.rotation.y += figuraRotacion.VelocidadRotacion;
-    // });
+    torotate.forEach(function(fig){
+      if (fig.name == 'cuerpo'){
+        fig = fig.parent;        
+      }
+      fig.rotation.y += figuraRotacion.VelocidadRotacion;
+    });
 
     // // Traslacion en eje tetera objeto seleccionado
-    // totraslate.forEach(function(fig){
-    //   fig.parent.rotation.y += figuraRotacion.VelocidadTraslacion;
-    // });
+    totraslate.forEach(function(fig){
+      if (fig.name == 'cuerpo'){
+        fig = fig.parent;
+        console.log(fig.name);
+      }
+      console.log("Rota: ",fig.name, " a velocidad: ", figuraRotacion.VelocidadTraslacion, " de ",fig.rotation.y);
+      fig.parent.rotation.y += figuraRotacion.VelocidadTraslacion;
+    });
 
     // Seguimiento de trayectoria - Camera spline
     var time = Date.now();
@@ -686,6 +694,51 @@ $(document).ready(function() {
         object.name = "tetera";
         objects.push(object);
         pivote.add(object);
+      },
+      Casa: function(){
+        var casa = new THREE.Object3D();
+        let matCasa = new THREE.MeshStandardMaterial({
+          side: THREE.DoubleSide,
+          color: "#ffffff"
+        });
+        
+        techo = new THREE.Mesh(
+          new THREE.CylinderBufferGeometry(0, 0.27, 0.1, 4),
+          matCasa
+        );
+        techo.position.set(0, 0.41, 0);
+        techo.rotation.y += 4;
+        techo.name = "techo";
+
+        cuerpo = new THREE.Mesh(
+          new THREE.BoxBufferGeometry(0.36, 0.36, 0.36, 1, 1, 1),
+          matCasa
+        );
+        cuerpo.position.set(0, 0.18, 0);
+        cuerpo.name = "cuerpo";
+
+        garage = new THREE.Mesh(
+          new THREE.BoxBufferGeometry(0.20, 0.17, 0.18, 1, 1, 1),
+          matCasa
+        );
+        garage.position.set(0.26, 0.085, 0.09);
+        garage.name = "garage";
+
+        cuerpo2 = new THREE.Mesh(
+          new THREE.BoxBufferGeometry(0.20, 0.36, 0.18, 1, 1, 1),
+          matCasa
+        );
+        cuerpo2.position.set(0.26, 0.18, -0.09);
+        cuerpo2.name = "cuerpo2";
+
+        casa.name = "casa";
+        casa.add(cuerpo);
+        casa.add(cuerpo2);
+        casa.add(garage);
+        casa.add(techo);
+        casa.position.set(0.4,0.4,0.4);    
+        objects.push(cuerpo);
+        scene.add(casa);
       }
     };
     figuras.add(figurasCrear, "Pirámide");
@@ -694,6 +747,7 @@ $(document).ready(function() {
     figuras.add(figurasCrear, "Esfera");
     figuras.add(figurasCrear, "Cono");
     figuras.add(figurasCrear, "Tetera");
+    figuras.add(figurasCrear, "Casa");
     // figuras.add(obj, "Tetera");
     figuras.open();
 
@@ -921,6 +975,52 @@ $(document).ready(function() {
     object.position.set(0, 0.3, 0);
     object.name = "tetera";
     return object;
+  }
+
+  function casa(){
+    var casa = new THREE.Object3D();
+    let matCasa = new THREE.MeshStandardMaterial({
+      side: THREE.DoubleSide,
+      color: "#ffffff"
+    });
+    
+    techo = new THREE.Mesh(
+      new THREE.CylinderBufferGeometry(0, 0.27, 0.1, 4),
+      matCasa
+    );
+    techo.position.set(0, 0.41, 0);
+    techo.rotation.y += 4;
+    techo.name = "techo";
+
+    cuerpo = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(0.36, 0.36, 0.36, 1, 1, 1),
+      matCasa
+    );
+    cuerpo.position.set(0, 0.18, 0);
+    cuerpo.name = "cuerpo";
+
+    garage = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(0.20, 0.17, 0.18, 1, 1, 1),
+      matCasa
+    );
+    garage.position.set(0.26, 0.085, 0.09);
+    garage.name = "garage";
+
+    cuerpo2 = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(0.20, 0.36, 0.18, 1, 1, 1),
+      matCasa
+    );
+    cuerpo2.position.set(0.26, 0.18, -0.09);
+    cuerpo2.name = "cuerpo2";
+
+    casa.name = "casa";
+    casa.add(cuerpo);
+    casa.add(cuerpo2);
+    casa.add(garage);
+    casa.add(techo);
+    casa.position.set(0.4,0.4,0.4);    
+    //scene.add(casa);
+    return casa;
   }
 
   function trayectoriaCam() {
