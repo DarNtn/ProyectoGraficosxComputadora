@@ -323,26 +323,21 @@ $(document).ready(function() {
     // Rotación de todos los objetos
     objects.forEach(function(fig){      
       if (params.Activado){
-        fig.rotation.y += params.VelocidadRotacion;
+        ob = fig.name=="cuerpo"? fig.parent: fig;
+        ob.rotation.y += params.VelocidadRotacion;
       }
     });
 
     // // Rotacion en propio eje objeto seleccionado
-    torotate.forEach(function(fig){
-      if (fig.name == 'cuerpo'){
-        fig = fig.parent;        
-      }
-      fig.rotation.y += figuraRotacion.VelocidadRotacion;
+    torotate.forEach(function(fig){      
+      ob = fig.name=="cuerpo"? fig.parent: fig;
+      ob.rotation.y += figuraRotacion.VelocidadRotacion;
     });
 
     // // Traslacion en eje tetera objeto seleccionado
-    totraslate.forEach(function(fig){
-      if (fig.name == 'cuerpo'){
-        fig = fig.parent;
-        console.log(fig.name);
-      }
-      console.log("Rota: ",fig.name, " a velocidad: ", figuraRotacion.VelocidadTraslacion, " de ",fig.rotation.y);
-      fig.parent.rotation.y += figuraRotacion.VelocidadTraslacion;
+    totraslate.forEach(function(fig){      
+      ob = fig.name=="cuerpo"? fig.parent: fig;
+      ob.parent.rotation.y += figuraRotacion.VelocidadTraslacion;
     });
 
     // Seguimiento de trayectoria - Camera spline
@@ -407,7 +402,8 @@ $(document).ready(function() {
 
     $(".custom-menu li").click(function(event) {
       var accion = $(this).attr("data-action");
-      transformControl.attach(FIGURASELECCIONADA);
+      var figuraTransformable = FIGURASELECCIONADA.name == 'cuerpo'? FIGURASELECCIONADA.parent: FIGURASELECCIONADA;
+      transformControl.attach(figuraTransformable);
       switch (accion) {
         case "textura":
           $(".custom-submenu")
@@ -419,26 +415,26 @@ $(document).ready(function() {
             });
           break;
         case "rotacion":
-          if (torotate.includes(FIGURASELECCIONADA)) {
-            torotate.splice(torotate.indexOf(FIGURASELECCIONADA), 1);
+          if (torotate.includes(figuraTransformable)) {
+            torotate.splice(torotate.indexOf(figuraTransformable), 1);
           } else {
-            torotate.push(FIGURASELECCIONADA);
+            torotate.push(figuraTransformable);
           }
           break;
         case "traslacion":
-          if (totraslate.includes(FIGURASELECCIONADA)) {
-            totraslate.splice(totraslate.indexOf(FIGURASELECCIONADA), 1);
+          if (totraslate.includes(figuraTransformable)) {
+            totraslate.splice(totraslate.indexOf(figuraTransformable), 1);
           } else {
-            totraslate.push(FIGURASELECCIONADA);
+            totraslate.push(figuraTransformable);
           }
           break;
         case "eliminar":
           console.log("==== eliminar");
-          if (torotate.includes(FIGURASELECCIONADA)) {
-            torotate.splice(torotate.indexOf(FIGURASELECCIONADA), 1);
+          if (torotate.includes(figuraTransformable)) {
+            torotate.splice(torotate.indexOf(figuraTransformable), 1);
           }
-          transformControl.detach(FIGURASELECCIONADA);
-          pivote.remove(FIGURASELECCIONADA);
+          transformControl.detach(figuraTransformable);
+          pivote.remove(figuraTransformable);
           // animate();
           // ELIMINARLO DE LA ESCENA AQUI
           break;
@@ -738,7 +734,7 @@ $(document).ready(function() {
         casa.add(techo);
         casa.position.set(0.4,0.4,0.4);    
         objects.push(cuerpo);
-        scene.add(casa);
+        pivote.add(casa);
       }
     };
     figuras.add(figurasCrear, "Pirámide");
