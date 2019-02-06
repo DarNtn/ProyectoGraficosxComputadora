@@ -161,11 +161,6 @@ $(document).ready(function() {
     obj.add(cono);    
     pivote.add(obj);
 
-    cono = cono();
-    obj = new THREE.Object3D();
-    obj.add(cono);
-    pivote.add(obj);
-
     toroide = toroide();
     obj = new THREE.Object3D();
     obj.add(toroide);
@@ -174,7 +169,9 @@ $(document).ready(function() {
     tetera = tetera();
     obj = new THREE.Object3D();
     obj.add(tetera)
-    scene.add(obj);
+    pivote.add(obj);
+
+    //scene.add(obj);
     scene.add(pivote);
 
     objects = [esfera, piramide, cubo, cono, toroide, tetera];
@@ -428,8 +425,8 @@ $(document).ready(function() {
           break;
         case "eliminar":
           console.log("==== eliminar");
-          if (torotate.includes(figuraTransformable)) {
-            torotate.splice(torotate.indexOf(figuraTransformable), 1);
+          if (torotate.includes(FIGURASELECCIONADA)) {
+            torotate.splice(torotate.indexOf(FIGURASELECCIONADA), 1);
           }
           if (totraslate.includes(FIGURASELECCIONADA)) {
             totraslate.splice(totraslate.indexOf(FIGURASELECCIONADA), 1);
@@ -888,7 +885,7 @@ $(document).ready(function() {
       new THREE.TorusBufferGeometry(0.15, 0.05, 30, 65),
       matToro
     );
-    object.position.set(-1.2, 0.2, -1.2);
+    object.position.set(-1.2, 0.05, -1.2);
     object.name = "toroide";
     scene.add(object);
     return object;
@@ -904,7 +901,7 @@ $(document).ready(function() {
       new THREE.BoxBufferGeometry(0.36, 0.36, 0.36, 1, 1, 1),
       matBox
     );
-    object.position.set(-1.4, 0.18, 0.5);
+    object.position.set(-1.4, 0.04, 0.5);
     object.name = "cubo";
     scene.add(object);
     return object;
@@ -920,7 +917,7 @@ $(document).ready(function() {
       new THREE.SphereBufferGeometry(0.2, 32, 32),
       matEsf
     );
-    object.position.set(0, 0.2, 1.4);
+    object.position.set(0, 0.045, 1.4);
     object.name = "esfera";
     return object;
   }
@@ -935,7 +932,7 @@ $(document).ready(function() {
       new THREE.CylinderBufferGeometry(0, 0.2, 0.4, 60),
       matCono
     );
-    object.position.set(0.5, 0.2, -1.4);
+    object.position.set(0.5, 0.06, -1.4);
     object.name = "cono";
     scene.add(object);
     return object;
@@ -951,7 +948,7 @@ $(document).ready(function() {
       new THREE.TetrahedronBufferGeometry(0.3, 0),
       matPir
     );
-    object.position.set(1.4, 0.2, 0.2);
+    object.position.set(1.4, 0.03, 0.2);
     object.name = "piramide";
     return object;
   }
@@ -973,7 +970,7 @@ $(document).ready(function() {
     );
 
     object = new THREE.Mesh(geometriaTetera, matTetera);
-    object.position.set(0, 0.3, 0);
+    object.position.set(0, 0.15, 0);
     object.name = "tetera";
     return object;
   }
