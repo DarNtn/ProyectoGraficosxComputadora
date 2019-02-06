@@ -323,7 +323,8 @@ $(document).ready(function() {
     // Rotación de todos los objetos
     objects.forEach(function(fig){
       if (params.Activado){
-        fig.rotation.y += params.VelocidadRotacion;
+        if (fig.name!= "cuerpo"){
+        fig.rotation.y += params.VelocidadRotacion;}
       }
     });
 
@@ -399,6 +400,7 @@ $(document).ready(function() {
 
     $(".custom-menu li").click(function(event) {
       var accion = $(this).attr("data-action");
+      var figuraTransformable = FIGURASELECCIONADA.name == 'cuerpo'? FIGURASELECCIONADA.parent: FIGURASELECCIONADA;
       switch (accion) {
         case "textura":
           $(".custom-submenu")
@@ -410,49 +412,49 @@ $(document).ready(function() {
             });
           break;
         case "rotacion":
-          if (torotate.includes(FIGURASELECCIONADA)){
-            torotate.splice(torotate.indexOf(FIGURASELECCIONADA), 1);
+          if (torotate.includes(figuraTransformable)){
+            torotate.splice(torotate.indexOf(figuraTransformable), 1);
           } else{
-            torotate.push(FIGURASELECCIONADA);
+            torotate.push(figuraTransformable);
           }          
           break;
         case "traslacion":
-          if (totraslate.includes(FIGURASELECCIONADA)){
-            totraslate.splice(totraslate.indexOf(FIGURASELECCIONADA), 1);
+          if (totraslate.includes(figuraTransformable)){
+            totraslate.splice(totraslate.indexOf(figuraTransformable), 1);
           } else{
-            totraslate.push(FIGURASELECCIONADA);
+            totraslate.push(figuraTransformable);
           }          
           break;
         case "eliminar":
           console.log("==== eliminar");
-          if (torotate.includes(FIGURASELECCIONADA)) {
-            torotate.splice(torotate.indexOf(FIGURASELECCIONADA), 1);
+          if (torotate.includes(figuraTransformable)) {
+            torotate.splice(torotate.indexOf(figuraTransformable), 1);
           }
-          if (totraslate.includes(FIGURASELECCIONADA)) {
-            totraslate.splice(totraslate.indexOf(FIGURASELECCIONADA), 1);
+          if (totraslate.includes(figuraTransformable)) {
+            totraslate.splice(totraslate.indexOf(figuraTransformable), 1);
           }
-          transformControl.detach(FIGURASELECCIONADA);
+          transformControl.detach(figuraTransformable);
           for (var i = 0; i < pivote.children.length; i++) {
-             pivote.children[i].remove(FIGURASELECCIONADA);
+             pivote.children[i].remove(figuraTransformable);
           }
           break;
         case "trasladar":
-          transformControl.attach(FIGURASELECCIONADA);
+          transformControl.attach(figuraTransformable);
           transformControl.setMode("translate");
           break;
         case "rotar":
-          transformControl.attach(FIGURASELECCIONADA);
+          transformControl.attach(figuraTransformable);
           transformControl.setMode("rotate");
           break;
         case "deseleccionar":
-          if (torotate.includes(FIGURASELECCIONADA)) {
-            torotate.splice(torotate.indexOf(FIGURASELECCIONADA), 1);
+          if (torotate.includes(figuraTransformable)) {
+            torotate.splice(torotate.indexOf(figuraTransformable), 1);
           }
-          if (totraslate.includes(FIGURASELECCIONADA)) {
-            totraslate.splice(totraslate.indexOf(FIGURASELECCIONADA), 1);
+          if (totraslate.includes(figuraTransformable)) {
+            totraslate.splice(totraslate.indexOf(figuraTransformable), 1);
           }
-          transformControl.detach(FIGURASELECCIONADA);
-          FIGURASELECCIONADA = null;
+          transformControl.detach(figuraTransformable);
+          figuraTransformable = null;
           break;
         case "escalar":
           transformControl.setMode("scale");
@@ -463,24 +465,61 @@ $(document).ready(function() {
 
     $(".custom-submenu li").click(function() {
       var accion = $(this).attr("data-action");
+      var figuraTransformable = FIGURASELECCIONADA.name == 'cuerpo'? FIGURASELECCIONADA.parent: FIGURASELECCIONADA;
       switch (accion) {
         case "textura-madera":
-          setTexture("images/hardwood2_diffuse.jpg", FIGURASELECCIONADA);
+          if (FIGURASELECCIONADA.name == 'cuerpo'){
+            for (var i = 0; i < figuraTransformable.children.length; i++) {
+              setTexture("images/hardwood2_diffuse.jpg", figuraTransformable.children[i]);
+            } 
+          }
+          else{
+          setTexture("images/hardwood2_diffuse.jpg", figuraTransformable);}
           break;
         case "textura-ladrillo":
-          setTexture("images/bricks.gif", FIGURASELECCIONADA);
+          if (FIGURASELECCIONADA.name == 'cuerpo'){
+            for (var i = 0; i < figuraTransformable.children.length; i++) {
+              setTexture("images/bricks.gif", figuraTransformable.children[i]);
+            } 
+          }
+          else{
+          setTexture("images/bricks.gif", figuraTransformable);}
           break;
         case "textura-normal":
-          setTexture("images/bricks.gif", FIGURASELECCIONADA, true);
+          if (FIGURASELECCIONADA.name == 'cuerpo'){
+            for (var i = 0; i < figuraTransformable.children.length; i++) {
+              setTexture("images/bricks.gif", figuraTransformable.children[i], true);
+            } 
+          }
+          else{
+          setTexture("images/bricks.gif", figuraTransformable, true);}
           break;
         case "textura-bloque":
-          setTexture("images/brick_bump.jpg", FIGURASELECCIONADA);
+          if (FIGURASELECCIONADA.name == 'cuerpo'){
+            for (var i = 0; i < figuraTransformable.children.length; i++) {
+              setTexture("images/brick_bump.jpg", figuraTransformable.children[i]);
+            } 
+          }
+          else{
+          setTexture("images/brick_bump.jpg", figuraTransformable);}
           break;
         case "textura-marmol":
-          setTexture("images/disturb.jpg", FIGURASELECCIONADA);
+          if (FIGURASELECCIONADA.name == 'cuerpo'){
+            for (var i = 0; i < figuraTransformable.children.length; i++) {
+              setTexture("images/disturb.jpg", figuraTransformable.children[i]);
+            } 
+          }
+          else{
+          setTexture("images/disturb.jpg", figuraTransformable);}
           break;
         case "textura-metalico":
-          setTexture("images/metal.jpg", FIGURASELECCIONADA);
+          if (FIGURASELECCIONADA.name == 'cuerpo'){
+            for (var i = 0; i < figuraTransformable.children.length; i++) {
+              setTexture("images/metal.jpg", figuraTransformable.children[i]);
+            } 
+          }
+          else{
+          setTexture("images/metal.jpg", figuraTransformable);}
           break;
       }
       $(".custom-submenu").hide(100);
@@ -735,7 +774,8 @@ $(document).ready(function() {
         casa.position.set(0.4,0.4,0.4);    
         objects.push(cuerpo);
         obj = new THREE.Object3D();
-        obj.add(cuerpo);
+        obj.add(casa);
+        //scene.add(casa);
         pivote.add(obj);
       }
     };
