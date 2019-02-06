@@ -68,7 +68,6 @@ $(document).ready(function() {
   function init() {
     var container = document.getElementById("container");
     pivote = new THREE.Object3D();
-
     // picking
     raycaster = new THREE.Raycaster();
     mouseVector = new THREE.Vector2();
@@ -143,37 +142,39 @@ $(document).ready(function() {
 
     //OBJETOS
     esfera = esfera();
-    // obj = new THREE.Object3D();
-    // obj.add(esfera);
-    pivote.add(esfera);
+    obj = new THREE.Object3D();
+    obj.add(esfera);
+    pivote.add(obj); 
 
     piramide = piramide();
-    // obj = new THREE.Object3D();
-    // obj.add(piramide);
-    pivote.add(piramide);
+    obj = new THREE.Object3D();
+    obj.add(piramide);
+    pivote.add(obj);
 
     cubo = cubo();
-    // obj = new THREE.Object3D();
-    // obj.add(cubo);
-    pivote.add(cubo);
+    obj = new THREE.Object3D();
+    obj.add(cubo);
+    pivote.add(obj);
 
     cono = cono();
-    // obj = new THREE.Object3D();
-    // obj.add(cono);
-    pivote.add(cono);
+    obj = new THREE.Object3D();
+    obj.add(cono);    
+    pivote.add(obj);
 
     toroide = toroide();
-    // obj = new THREE.Object3D();
-    // obj.add(toroide);
-    pivote.add(toroide);
+    obj = new THREE.Object3D();
+    obj.add(toroide);
+    pivote.add(obj);
 
     tetera = tetera();
-    // obj = new THREE.Object3D();
-    // obj.add(tetera)
-    scene.add(tetera);
+    obj = new THREE.Object3D();
+    obj.add(tetera)
+    pivote.add(obj);
+
+    //scene.add(obj);
     scene.add(pivote);
 
-    objects = [cubo, esfera, piramide, cono, toroide, tetera];
+    objects = [esfera, piramide, cubo, cono, toroide, tetera];
 
     graficoPicking = esfera;
 
@@ -195,7 +196,6 @@ $(document).ready(function() {
     });
     scene.add(transformControl);
 
-    // Hiding transform situation is a little in a mess :()
     transformControl.addEventListener("change", function(e) {
       cancelHideTransorm();
     });
@@ -321,21 +321,22 @@ $(document).ready(function() {
     }
 
     // Rotación de todos los objetos
-    // objects.forEach(function(fig){
-    //   if (params.Activado){
-    //     fig.rotation.y += params.VelocidadRotacion;
-    //   }
-    // });
+    objects.forEach(function(fig){
+      if (params.Activado){
+        if (fig.name!= "cuerpo"){
+        fig.rotation.y += params.VelocidadRotacion;}
+      }
+    });
 
-    // // Rotacion en propio eje objeto seleccionado
-    // torotate.forEach(function(fig){
-    //   fig.rotation.y += figuraRotacion.VelocidadRotacion;
-    // });
+    // Rotacion en propio eje objeto seleccionado
+    torotate.forEach(function(fig){
+      fig.rotation.y += figuraRotacion.VelocidadRotacion;
+    });
 
-    // // Traslacion en eje tetera objeto seleccionado
-    // totraslate.forEach(function(fig){
-    //   fig.parent.rotation.y += figuraRotacion.VelocidadTraslacion;
-    // });
+    // Traslacion en eje tetera objeto seleccionado
+    totraslate.forEach(function(fig){
+      fig.parent.rotation.y += figuraRotacion.VelocidadTraslacion;
+    });
 
     // Seguimiento de trayectoria - Camera spline
     var time = Date.now();
@@ -373,7 +374,7 @@ $(document).ready(function() {
         if (intersects.length > 0) {
           //console.log(intersects[0].object);
           FIGURASELECCIONADA = intersects[0].object;
-          console.log(FIGURASELECCIONADA);
+          //console.log(FIGURASELECCIONADA);
         } else {
           return;
         }
@@ -399,7 +400,7 @@ $(document).ready(function() {
 
     $(".custom-menu li").click(function(event) {
       var accion = $(this).attr("data-action");
-      transformControl.attach(FIGURASELECCIONADA);
+      var figuraTransformable = FIGURASELECCIONADA.name == 'cuerpo'? FIGURASELECCIONADA.parent: FIGURASELECCIONADA;
       switch (accion) {
         case "textura":
           $(".custom-submenu")
@@ -411,57 +412,50 @@ $(document).ready(function() {
             });
           break;
         case "rotacion":
-          if (torotate.includes(FIGURASELECCIONADA)) {
-            torotate.splice(torotate.indexOf(FIGURASELECCIONADA), 1);
-          } else {
-            torotate.push(FIGURASELECCIONADA);
-          }
+          if (torotate.includes(figuraTransformable)){
+            torotate.splice(torotate.indexOf(figuraTransformable), 1);
+          } else{
+            torotate.push(figuraTransformable);
+          }          
           break;
         case "traslacion":
-          if (totraslate.includes(FIGURASELECCIONADA)) {
-            totraslate.splice(totraslate.indexOf(FIGURASELECCIONADA), 1);
-          } else {
-            totraslate.push(FIGURASELECCIONADA);
-          }
+          if (totraslate.includes(figuraTransformable)){
+            totraslate.splice(totraslate.indexOf(figuraTransformable), 1);
+          } else{
+            totraslate.push(figuraTransformable);
+          }          
           break;
         case "eliminar":
           console.log("==== eliminar");
-          if (torotate.includes(FIGURASELECCIONADA)) {
-            torotate.splice(torotate.indexOf(FIGURASELECCIONADA), 1);
+          if (torotate.includes(figuraTransformable)) {
+            torotate.splice(torotate.indexOf(figuraTransformable), 1);
           }
-          transformControl.detach(FIGURASELECCIONADA);
-          pivote.remove(FIGURASELECCIONADA);
-          // animate();
-          // ELIMINARLO DE LA ESCENA AQUI
-          break;
-        case "textura-madera":
-          setTexture("images/hardwood2_diffuse.jpg", FIGURASELECCIONADA);
-          break;
-        case "textura-ladrillo":
-          setTexture("images/bricks.gif", FIGURASELECCIONADA);
-          break;
-        case "textura-normal":
-          setTexture("images/bricks.gif", FIGURASELECCIONADA, true);
-          break;
-        case "textura-bloque":
-          setTexture("images/brick_bump.jpg", FIGURASELECCIONADA);
-          break;
-        case "textura-marmol":
-          setTexture("images/disturb.jpg", FIGURASELECCIONADA);
-          break;
-        case "textura-metalico":
-          setTexture("images/metal.jpg", FIGURASELECCIONADA);
+          if (totraslate.includes(figuraTransformable)) {
+            totraslate.splice(totraslate.indexOf(figuraTransformable), 1);
+          }
+          transformControl.detach(figuraTransformable);
+          for (var i = 0; i < pivote.children.length; i++) {
+             pivote.children[i].remove(figuraTransformable);
+          }
           break;
         case "trasladar":
+          transformControl.attach(figuraTransformable);
           transformControl.setMode("translate");
           break;
         case "rotar":
+          transformControl.attach(figuraTransformable);
           transformControl.setMode("rotate");
           break;
-        case "desceleccionar":
-          FIGURASELECCIONADA = null;
+        case "deseleccionar":
+          if (torotate.includes(figuraTransformable)) {
+            torotate.splice(torotate.indexOf(figuraTransformable), 1);
+          }
+          if (totraslate.includes(figuraTransformable)) {
+            totraslate.splice(totraslate.indexOf(figuraTransformable), 1);
+          }
+          transformControl.detach(figuraTransformable);
+          figuraTransformable = null;
           break;
-
         case "escalar":
           transformControl.setMode("scale");
           break;
@@ -471,24 +465,61 @@ $(document).ready(function() {
 
     $(".custom-submenu li").click(function() {
       var accion = $(this).attr("data-action");
+      var figuraTransformable = FIGURASELECCIONADA.name == 'cuerpo'? FIGURASELECCIONADA.parent: FIGURASELECCIONADA;
       switch (accion) {
         case "textura-madera":
-          setTexture("images/hardwood2_diffuse.jpg", FIGURASELECCIONADA);
+          if (FIGURASELECCIONADA.name == 'cuerpo'){
+            for (var i = 0; i < figuraTransformable.children.length; i++) {
+              setTexture("images/hardwood2_diffuse.jpg", figuraTransformable.children[i]);
+            } 
+          }
+          else{
+          setTexture("images/hardwood2_diffuse.jpg", figuraTransformable);}
           break;
         case "textura-ladrillo":
-          setTexture("images/bricks.gif", FIGURASELECCIONADA);
+          if (FIGURASELECCIONADA.name == 'cuerpo'){
+            for (var i = 0; i < figuraTransformable.children.length; i++) {
+              setTexture("images/bricks.gif", figuraTransformable.children[i]);
+            } 
+          }
+          else{
+          setTexture("images/bricks.gif", figuraTransformable);}
           break;
         case "textura-normal":
-          setTexture("images/bricks.gif", FIGURASELECCIONADA, true);
+          if (FIGURASELECCIONADA.name == 'cuerpo'){
+            for (var i = 0; i < figuraTransformable.children.length; i++) {
+              setTexture("images/bricks.gif", figuraTransformable.children[i], true);
+            } 
+          }
+          else{
+          setTexture("images/bricks.gif", figuraTransformable, true);}
           break;
         case "textura-bloque":
-          setTexture("images/brick_bump.jpg", FIGURASELECCIONADA);
+          if (FIGURASELECCIONADA.name == 'cuerpo'){
+            for (var i = 0; i < figuraTransformable.children.length; i++) {
+              setTexture("images/brick_bump.jpg", figuraTransformable.children[i]);
+            } 
+          }
+          else{
+          setTexture("images/brick_bump.jpg", figuraTransformable);}
           break;
         case "textura-marmol":
-          setTexture("images/disturb.jpg", FIGURASELECCIONADA);
+          if (FIGURASELECCIONADA.name == 'cuerpo'){
+            for (var i = 0; i < figuraTransformable.children.length; i++) {
+              setTexture("images/disturb.jpg", figuraTransformable.children[i]);
+            } 
+          }
+          else{
+          setTexture("images/disturb.jpg", figuraTransformable);}
           break;
         case "textura-metalico":
-          setTexture("images/metal.jpg", FIGURASELECCIONADA);
+          if (FIGURASELECCIONADA.name == 'cuerpo'){
+            for (var i = 0; i < figuraTransformable.children.length; i++) {
+              setTexture("images/metal.jpg", figuraTransformable.children[i]);
+            } 
+          }
+          else{
+          setTexture("images/metal.jpg", figuraTransformable);}
           break;
       }
       $(".custom-submenu").hide(100);
@@ -531,7 +562,7 @@ $(document).ready(function() {
             INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
           }
           INTERSECTED = graficoPicking;
-          // transformControl.attach( INTERSECTED );
+          //transformControl.attach( INTERSECTED );
           INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
         }
       } else {
@@ -594,7 +625,9 @@ $(document).ready(function() {
         object.position.set(random, random2, random2);
         object.name = "piramide";
         objects.push(object);
-        pivote.add(object);
+        obj = new THREE.Object3D();
+        obj.add(object);
+        pivote.add(obj);
       },
       Toroide: function() {
         let matToro = new THREE.MeshStandardMaterial({
@@ -611,7 +644,9 @@ $(document).ready(function() {
         object.position.set(random, random2, random);
         object.name = "toroide";
         objects.push(object);
-        pivote.add(object);
+        obj = new THREE.Object3D();
+        obj.add(object);
+        pivote.add(obj);
       },
       Cubo: function() {
         let matBox = new THREE.MeshStandardMaterial({
@@ -628,7 +663,9 @@ $(document).ready(function() {
         object.position.set(random, 0.18, random2);
         object.name = "cubo";
         objects.push(object);
-        pivote.add(object);
+        obj = new THREE.Object3D();
+        obj.add(object);
+        pivote.add(obj);
       },
       Esfera: function() {
         let matEsf = new THREE.MeshStandardMaterial({
@@ -645,7 +682,9 @@ $(document).ready(function() {
         object.position.set(random, 0.2, random2);
         object.name = "esfera";
         objects.push(object);
-        pivote.add(object);
+        obj = new THREE.Object3D();
+        obj.add(object);
+        pivote.add(obj);
       },
       Cono: function() {
         let matCono = new THREE.MeshStandardMaterial({
@@ -662,7 +701,9 @@ $(document).ready(function() {
         object.position.set(random, 0.2, random2);
         object.name = "cono";
         objects.push(object);
-        pivote.add(object);
+        obj = new THREE.Object3D();
+        obj.add(object);
+        pivote.add(obj);
       },
       Tetera: function() {
         let matTetera = new THREE.MeshStandardMaterial({
@@ -685,7 +726,57 @@ $(document).ready(function() {
         object.position.set(random, 0.3, random);
         object.name = "tetera";
         objects.push(object);
-        pivote.add(object);
+        obj = new THREE.Object3D();
+        obj.add(object);
+        pivote.add(obj);
+      },
+      Casa: function(){
+        var casa = new THREE.Object3D();
+        let matCasa = new THREE.MeshStandardMaterial({
+          side: THREE.DoubleSide,
+          color: "#ffffff"
+        });
+        
+        techo = new THREE.Mesh(
+          new THREE.CylinderBufferGeometry(0, 0.27, 0.1, 4),
+          matCasa
+        );
+        techo.position.set(0, 0.41, 0);
+        techo.rotation.y += 4;
+        techo.name = "techo";
+
+        cuerpo = new THREE.Mesh(
+          new THREE.BoxBufferGeometry(0.36, 0.36, 0.36, 1, 1, 1),
+          matCasa
+        );
+        cuerpo.position.set(0, 0.18, 0);
+        cuerpo.name = "cuerpo";
+
+        garage = new THREE.Mesh(
+          new THREE.BoxBufferGeometry(0.20, 0.17, 0.18, 1, 1, 1),
+          matCasa
+        );
+        garage.position.set(0.26, 0.085, 0.09);
+        garage.name = "garage";
+
+        cuerpo2 = new THREE.Mesh(
+          new THREE.BoxBufferGeometry(0.20, 0.36, 0.18, 1, 1, 1),
+          matCasa
+        );
+        cuerpo2.position.set(0.26, 0.18, -0.09);
+        cuerpo2.name = "cuerpo2";
+
+        casa.name = "casa";
+        casa.add(cuerpo);
+        casa.add(cuerpo2);
+        casa.add(garage);
+        casa.add(techo);
+        casa.position.set(0.4,0.4,0.4);    
+        objects.push(cuerpo);
+        obj = new THREE.Object3D();
+        obj.add(casa);
+        //scene.add(casa);
+        pivote.add(obj);
       }
     };
     figuras.add(figurasCrear, "Pirámide");
@@ -694,6 +785,7 @@ $(document).ready(function() {
     figuras.add(figurasCrear, "Esfera");
     figuras.add(figurasCrear, "Cono");
     figuras.add(figurasCrear, "Tetera");
+    figuras.add(figurasCrear, "Casa");
     // figuras.add(obj, "Tetera");
     figuras.open();
 
@@ -833,7 +925,7 @@ $(document).ready(function() {
       new THREE.TorusBufferGeometry(0.15, 0.05, 30, 65),
       matToro
     );
-    object.position.set(-1.2, 0.2, -1.2);
+    object.position.set(-1.2, 0.05, -1.2);
     object.name = "toroide";
     scene.add(object);
     return object;
@@ -849,7 +941,7 @@ $(document).ready(function() {
       new THREE.BoxBufferGeometry(0.36, 0.36, 0.36, 1, 1, 1),
       matBox
     );
-    object.position.set(-1.4, 0.18, 0.5);
+    object.position.set(-1.4, 0.04, 0.5);
     object.name = "cubo";
     scene.add(object);
     return object;
@@ -865,7 +957,7 @@ $(document).ready(function() {
       new THREE.SphereBufferGeometry(0.2, 32, 32),
       matEsf
     );
-    object.position.set(0, 0.2, 1.4);
+    object.position.set(0, 0.045, 1.4);
     object.name = "esfera";
     return object;
   }
@@ -880,7 +972,7 @@ $(document).ready(function() {
       new THREE.CylinderBufferGeometry(0, 0.2, 0.4, 60),
       matCono
     );
-    object.position.set(0.5, 0.2, -1.4);
+    object.position.set(0.5, 0.06, -1.4);
     object.name = "cono";
     scene.add(object);
     return object;
@@ -896,7 +988,7 @@ $(document).ready(function() {
       new THREE.TetrahedronBufferGeometry(0.3, 0),
       matPir
     );
-    object.position.set(1.4, 0.2, 0.2);
+    object.position.set(1.4, 0.03, 0.2);
     object.name = "piramide";
     return object;
   }
@@ -918,9 +1010,55 @@ $(document).ready(function() {
     );
 
     object = new THREE.Mesh(geometriaTetera, matTetera);
-    object.position.set(0, 0.3, 0);
+    object.position.set(0, 0.15, 0);
     object.name = "tetera";
     return object;
+  }
+
+  function casa(){
+    var casa = new THREE.Object3D();
+    let matCasa = new THREE.MeshStandardMaterial({
+      side: THREE.DoubleSide,
+      color: "#ffffff"
+    });
+    
+    techo = new THREE.Mesh(
+      new THREE.CylinderBufferGeometry(0, 0.27, 0.1, 4),
+      matCasa
+    );
+    techo.position.set(0, 0.41, 0);
+    techo.rotation.y += 4;
+    techo.name = "techo";
+
+    cuerpo = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(0.36, 0.36, 0.36, 1, 1, 1),
+      matCasa
+    );
+    cuerpo.position.set(0, 0.18, 0);
+    cuerpo.name = "cuerpo";
+
+    garage = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(0.20, 0.17, 0.18, 1, 1, 1),
+      matCasa
+    );
+    garage.position.set(0.26, 0.085, 0.09);
+    garage.name = "garage";
+
+    cuerpo2 = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(0.20, 0.36, 0.18, 1, 1, 1),
+      matCasa
+    );
+    cuerpo2.position.set(0.26, 0.18, -0.09);
+    cuerpo2.name = "cuerpo2";
+
+    casa.name = "casa";
+    casa.add(cuerpo);
+    casa.add(cuerpo2);
+    casa.add(garage);
+    casa.add(techo);
+    casa.position.set(0.4,0.4,0.4);    
+    //scene.add(casa);
+    return casa;
   }
 
   function trayectoriaCam() {
