@@ -57,7 +57,7 @@ $(document).ready(function() {
   var pivote;
   var figuraRotacion = new function() {
     this.VelocidadRotacion = 0.02;
-    this.VelocidadTraslacion = 0.02;
+    this.VelocidadTraslacion = 0.005;
   }();
   var preventRotation = false;
 
