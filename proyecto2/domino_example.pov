@@ -106,10 +106,10 @@ union
 #end
 // camera ------------------------------------------------------------------
 #declare Camera_0 = camera { angle 55
-                             location  <-70 , Camera_Y + 10,55>
+                             location  <-80 , Camera_Y + 20, 85 - clock*100>
                              right     x*image_width/image_height
-                             look_at   <0 , 0, -80>
-                             rotate<0,-360*(clock/4 +0.10),0>
+                             look_at   <-40 , 0, -50>
+                             rotate<0,-360*(clock/8 +0.10),0>
                            }
 camera{Camera_0}
 
