@@ -163,11 +163,11 @@ object
 
 //Fichas de domino
 object{GiveMeNineMacro(2090) rotate<0, 90, 0> translate<-29.1, 0, -13>}
-object{GiveMeNineMacro(2225) rotate<0, 90, 0> translate<-29.1, 0, -40>}
-object{GiveMeOneMacro(2360) rotate<0, 70, 0> translate<-28, 0, -67>}
-object{GiveMeOneMacro(2375) rotate<0, 50, 0> translate<-26, 0, -69.3>}
-object{GiveMeOneMacro(2390) rotate<0, 30, 0> translate<-24, 0, -71>}
-object{GiveMeOneMacro(2410) rotate<0, 30, 0> translate<-22, 0, -73>}
-object{GiveMeOneMacro(2425) rotate<0, 10, 0> translate<-19.5, 0, -74>}
-object{GiveMeNineMacro(2440) rotate<0, 0, 0> translate<-16.5, 0, -74>}
-object{GiveMeNineMacro(2575) rotate<0, 0, 0> translate<10.5, 0, -74>}
+object{GiveMeNineMacro(2140) rotate<0, 90, 0> translate<-29.1, 0, -40>}
+object{GiveMeOneMacro(2190) rotate<0, 70, 0> translate<-28, 0, -67>}
+object{GiveMeOneMacro(2200) rotate<0, 50, 0> translate<-26, 0, -69.3>}
+object{GiveMeOneMacro(2210) rotate<0, 30, 0> translate<-24, 0, -71>}
+object{GiveMeOneMacro(2220) rotate<0, 30, 0> translate<-22, 0, -73>}
+object{GiveMeOneMacro(2230) rotate<0, 10, 0> translate<-19.5, 0, -74>}
+object{GiveMeNineMacro(2240) rotate<0, 0, 0> translate<-16.5, 0, -74>}
+object{GiveMeNineMacro(2290) rotate<0, 0, 0> translate<10.5, 0, -74>}
